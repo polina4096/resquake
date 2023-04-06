@@ -3,6 +3,7 @@ package polina4096.resquake
 import net.minecraft.block.BlockRenderType
 import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.Entity
+import net.minecraft.entity.Flutterer
 import net.minecraft.entity.MovementType
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.particle.BlockStateParticleEffect
@@ -187,8 +188,8 @@ object ReSquakeClient {
         // HL2 code applies half gravity before acceleration and half after acceleration, but this seems to work fine
         this.minecraft_ApplyGravity()
 
-        // TODO: swing them arms
-        // some code must be here :')
+        // Move arms and legs
+        this.updateLimbs(this is Flutterer);
 
         return true
     }
