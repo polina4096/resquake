@@ -1,16 +1,14 @@
 package polina4096.resquake
 
-import com.terraformersmc.modmenu.api.ModMenuApi
 import kotlinx.serialization.*
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.*
-import net.minecraft.client.MinecraftClient
 import java.io.File
 
 private val json = Json { prettyPrint = true }
 
 @Serializable
-class ReSquakeConfig(@Transient var file: File? = null) : ModMenuApi {
+class ReSquakeConfig(@Transient var file: File? = null) {
     var bunnyhopEnabled  : Boolean = DEFAULT_BUNNYHOP_ENABLED
     var uncappedBunnyhop : Boolean = DEFAULT_UNCAPPED_BUNNYHOP
 
@@ -45,7 +43,7 @@ class ReSquakeConfig(@Transient var file: File? = null) : ModMenuApi {
         const val DEFAULT_TRIMP_MULTIPLIER   =   1.40
 
         fun load(file: File): ReSquakeConfig {
-            if (!file.exists()) return ReSquakeConfig()
+            if (!file.exists()) return ReSquakeConfig(file)
 
             val inputStream = file.inputStream()
             val inputString = inputStream.bufferedReader().use { it.readText() }
