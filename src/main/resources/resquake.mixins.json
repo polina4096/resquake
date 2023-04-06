@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "polina4096.resquake.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "MixinEntity",
+    "MixinLivingEntity",
+    "MixinPlayerEntity"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+	}
+}

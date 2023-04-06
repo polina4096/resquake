@@ -1,0 +1,49 @@
+{
+	"schemaVersion": 1,
+	"id": "resquake",
+	"version": "${version}",
+	"name": "re:squake",
+	"description": "Brings quake-style movement into the game.",
+	"authors": [
+		"Полина",
+		"He11crow",
+		"squeek502",
+		"Tlesis",
+		"LeviOP"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "unlicense",
+	"icon": "assets/resquake/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			{
+				"value": "polina4096.resquake.ReSquakeMod",
+				"adapter": "kotlin"
+			}
+		],
+		"modmenu": [
+			{
+				"value": "polina4096.resquake.ModMenuIntegration",
+				"adapter": "kotlin"
+			}
+		]
+	},
+	"mixins": [
+		"resquake.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.14.19",
+		"minecraft": "~1.19.4",
+		"java": ">=17",
+		"fabric-api": "*",
+		"fabric-language-kotlin": ">=1.8.20",
+		"yet-another-config-lib": ">=2.4"
+	},
+	"suggests": {
+		"modmenu": ">=6.1.0-rc.4"
+	}
+}
