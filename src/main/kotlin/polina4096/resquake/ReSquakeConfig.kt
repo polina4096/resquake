@@ -3,12 +3,15 @@ package polina4096.resquake
 import kotlinx.serialization.*
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.*
-import java.io.File
+import java.nio.file.Files
+import java.nio.file.Path
+import kotlin.io.path.exists
+import kotlin.io.path.writeText
 
 private val json = Json { prettyPrint = true }
 
 @Serializable
-class ReSquakeConfig(@Transient var file: File? = null) {
+class ReSquakeConfig(@Transient var path: Path? = null) {
     // Movement
     var bunnyhopEnabled   : Boolean = DEFAULT_BUNNYHOP_ENABLED
     var bunnyhopUncapped  : Boolean = DEFAULT_BUNNYHOP_UNCAPPED
@@ -28,7 +31,7 @@ class ReSquakeConfig(@Transient var file: File? = null) {
     var trimpMultiplier   : Double  = DEFAULT_TRIMP_MULTIPLIER
 
     fun save() {
-        file!!.writeText(json.encodeToString(this))
+        path!!.writeText(json.encodeToString(this))
     }
 
     companion object {
@@ -50,12 +53,12 @@ class ReSquakeConfig(@Transient var file: File? = null) {
         const val DEFAULT_SOFT_CAP_DEGEN      =   0.65
         const val DEFAULT_TRIMP_MULTIPLIER    =   1.40
 
-        fun load(file: File): ReSquakeConfig {
-            if (!file.exists()) return ReSquakeConfig(file)
+        fun load(path: Path): ReSquakeConfig {
+            if (!path.exists()) return ReSquakeConfig(path)
 
-            val inputStream = file.inputStream()
+            val inputStream = Files.newInputStream(path)
             val inputString = inputStream.bufferedReader().use { it.readText() }
-            return Json.decodeFromString<ReSquakeConfig>(inputString).also { it.file = file }
+            return Json.decodeFromString<ReSquakeConfig>(inputString).also { it.path = path }
         }
     }
 }

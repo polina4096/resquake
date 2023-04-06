@@ -1,7 +1,7 @@
 package polina4096.resquake
 
 import net.fabricmc.api.ModInitializer
-import net.minecraft.client.MinecraftClient
+import net.fabricmc.loader.api.FabricLoader
 import org.slf4j.LoggerFactory
 import java.io.File
 
@@ -14,8 +14,8 @@ object ReSquakeMod : ModInitializer {
 	lateinit var config: ReSquakeConfig
 
 	override fun onInitialize() {
-		val runDir = MinecraftClient.getInstance().runDirectory
-		config = ReSquakeConfig.load(File(runDir, "config").resolve("$ID.json"))
+		val configDir = FabricLoader.getInstance().configDir
+		config = ReSquakeConfig.load(configDir.resolve("$ID.json"))
 
 		logger.info("re:squake initialized!")
 	}
