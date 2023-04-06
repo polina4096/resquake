@@ -1,4 +1,4 @@
-package polina4096.resquake
+package polina4096.resquake.integration
 
 import com.terraformersmc.modmenu.api.ConfigScreenFactory
 import com.terraformersmc.modmenu.api.ModMenuApi
@@ -7,8 +7,13 @@ import dev.isxander.yacl.api.Option
 import dev.isxander.yacl.api.YetAnotherConfigLib
 import dev.isxander.yacl.gui.controllers.BooleanController
 import dev.isxander.yacl.gui.controllers.string.number.DoubleFieldController
+import net.fabricmc.api.EnvType
+import net.fabricmc.api.Environment
 import net.minecraft.text.Text
+import polina4096.resquake.ReSquakeConfig
+import polina4096.resquake.ReSquakeMod
 
+@Environment(EnvType.CLIENT)
 class ModMenuIntegration : ModMenuApi {
     override fun getModConfigScreenFactory() = ConfigScreenFactory {
         YetAnotherConfigLib.createBuilder()

@@ -27,7 +27,7 @@
 		],
 		"modmenu": [
 			{
-				"value": "polina4096.resquake.ModMenuIntegration",
+				"value": "polina4096.resquake.integration.ModMenuIntegration",
 				"adapter": "kotlin"
 			}
 		]
