@@ -14,6 +14,7 @@ import net.minecraft.util.math.Vec2f
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
 import net.minecraft.world.chunk.ChunkStatus
+import polina4096.resquake.ReSquakeClient.quake_DoTrimp
 
 object ReSquakeClient {
     private var baseVelocities = mutableListOf<Vec2f>()
@@ -209,6 +210,7 @@ object ReSquakeClient {
 
         val didTrimp = this.quake_DoTrimp()
         if (!didTrimp) this.quake_ApplyHardCap(maxMoveSpeed)
+        this.spawnBunnyhopParticles(ReSquakeMod.config.bunnyhopParticles)
     }
     private fun PlayerEntity.quake_DoTrimp(): Boolean {
         if (ReSquakeMod.config.trimpingEnabled && this.isSneaking) {
@@ -228,7 +230,7 @@ object ReSquakeClient {
                     this.velocity = Vec3d(xVel, yVel, zVel)
                 }
 
-                this.spawnBunnyhopParticles(30)
+                this.spawnBunnyhopParticles(ReSquakeMod.config.bunnyhopParticles * 2)
 
                 return true
             }
@@ -285,7 +287,7 @@ object ReSquakeClient {
     private fun PlayerEntity.quake_ApplySoftCap(moveSpeed: Float) {
         var softCapPercent = ReSquakeMod.config.softCapThreshold.toFloat()
         var softCapDegen   = ReSquakeMod.config.softCapDegen.toFloat()
-        if (ReSquakeMod.config.uncappedBunnyhop) {
+        if (ReSquakeMod.config.bunnyhopUncapped) {
             softCapPercent = 1.0f
             softCapDegen   = 1.0f
         }
@@ -303,12 +305,10 @@ object ReSquakeClient {
                 val z = this.velocity.z * multiplier.toDouble()
                 this.velocity = Vec3d(x, this.velocity.y, z)
             }
-
-            this.spawnBunnyhopParticles(10)
         }
     }
     private fun PlayerEntity.quake_ApplyHardCap(moveSpeed: Float) {
-        if (ReSquakeMod.config.uncappedBunnyhop) return
+        if (ReSquakeMod.config.bunnyhopUncapped) return
 
         val hardCapPercent = ReSquakeMod.config.hardCapThreshold.toFloat()
         val hardCap = moveSpeed * hardCapPercent
@@ -319,19 +319,18 @@ object ReSquakeClient {
             val xVel = this.velocity.x * multiplier.toDouble()
             val zVel = this.velocity.z * multiplier.toDouble()
             this.velocity = Vec3d(xVel, this.velocity.y, zVel)
-
-            this.spawnBunnyhopParticles(30)
         }
     }
 
     private fun PlayerEntity.spawnBunnyhopParticles(numParticles: Int) {
+        if (numParticles < 1) return
+
         // taken from sprint
         val i = MathHelper.floor(this.x)
         val j = MathHelper.floor(this.y - 0.20000000298023224)
         val k = MathHelper.floor(this.z)
 
         val blockState = this.world.getBlockState(BlockPos(i, j, k))
-        ReSquakeMod.logger.info(this.y.toString())
         if (blockState.renderType != BlockRenderType.INVISIBLE) {
             for (iParticle in 0 until numParticles) {
                 val x = this.x + (this.random.nextFloat() - 0.5) * this.width
