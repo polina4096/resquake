@@ -325,11 +325,12 @@ object ReSquakeClient {
 
     private fun PlayerEntity.spawnBunnyhopParticles(numParticles: Int) {
         // taken from sprint
-        val j = MathHelper.floor(this.x)
-        val i = MathHelper.floor(this.y - 0.20000000298023224 - this.heightOffset)
+        val i = MathHelper.floor(this.x)
+        val j = MathHelper.floor(this.y - 0.20000000298023224)
         val k = MathHelper.floor(this.z)
 
-        val blockState = this.world.getBlockState(BlockPos(j, i, k))
+        val blockState = this.world.getBlockState(BlockPos(i, j, k))
+        ReSquakeMod.logger.info(this.y.toString())
         if (blockState.renderType != BlockRenderType.INVISIBLE) {
             for (iParticle in 0 until numParticles) {
                 val x = this.x + (this.random.nextFloat() - 0.5) * this.width
