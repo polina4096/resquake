@@ -5,16 +5,12 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.Entity
 import net.minecraft.entity.Flutterer
 import net.minecraft.entity.MovementType
+import net.minecraft.entity.effect.StatusEffects
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.particle.BlockStateParticleEffect
 import net.minecraft.particle.ParticleTypes
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.MathHelper
-import net.minecraft.util.math.Vec2f
-import net.minecraft.util.math.Vec3d
+import net.minecraft.util.math.*
 import net.minecraft.world.World
-import net.minecraft.world.chunk.ChunkStatus
-import polina4096.resquake.ReSquakeClient.quake_DoTrimp
 
 object ReSquakeClient {
     private var baseVelocities = mutableListOf<Vec2f>()
@@ -53,23 +49,23 @@ object ReSquakeClient {
             player.quake_Jump()
         }
     }
-    fun moveEntityWithHeading(player: PlayerEntity, sidemove: Float, forwardmove: Float): Boolean {
-        if (!ReSquakeMod.config.bunnyhopEnabled) return false
-        if (!player.world.isClient) return false
+    fun travel(player: PlayerEntity, sidemove: Float, forwardmove: Float): Boolean {
+        if (!ReSquakeMod.config.bunnyhopEnabled                                       ) return false
+        if (!player.world.isClient                                                    ) return false
+        if ((player.abilities.flying || player.isFallFlying) && player.vehicle == null) return false
 
         val dX = player.x
         val dY = player.y
         val dZ = player.z
-        val didQuakeMovement = if ((player.abilities.flying || player.isFallFlying) && player.vehicle == null)
-            return false else player.quake_moveEntityWithHeading(sidemove, forwardmove)
-
-        if (didQuakeMovement) {
+        if (player.quake_moveEntityWithHeading(sidemove, forwardmove)) {
             player.increaseTravelMotionStats(player.x - dX, player.y - dY, player.z - dZ)
+
+            return true
         }
 
-        return didQuakeMovement
+        return false
     }
-    fun beforeOnLivingUpdate(player: PlayerEntity) {
+    fun beforeTick(player: PlayerEntity) {
         if (player.world.isClient && baseVelocities.isNotEmpty())
             baseVelocities.clear()
     }
@@ -116,21 +112,43 @@ object ReSquakeClient {
         return Vec2f(0.0f, 0.0f)
     }
 
-    private fun PlayerEntity.minecraft_ApplyFriction(momentumRetention: Float) {
+    private fun PlayerEntity.applyFriction(momentumRetention: Float) {
         val x = this.velocity.x * momentumRetention.toDouble()
         val z = this.velocity.z * momentumRetention.toDouble()
-
-        val velocity = this.velocity
-        this.velocity = Vec3d(x, velocity.y, z)
+        this.velocity = Vec3d(x, this.velocity.y, z)
     }
-    private fun PlayerEntity.minecraft_ApplyGravity() {
-        val y = if (this.world.isClient && (!this.world.isChunkLoaded(this.x.toInt(),this.z.toInt()) || this.world.getChunk(BlockPos(this.x.toInt(), this.y.toInt(), this.z.toInt())).status !== ChunkStatus.FULL))
-            if (this.y > 0.0) -0.1
-            else               0.0
-        else this.velocity.y - 0.08 // gravity
+    private fun PlayerEntity.applyGravity() {
+        val levitating = hasStatusEffect(StatusEffects.LEVITATION)
 
-        val airResistance = 0.9800000190734863
-        this.velocity = Vec3d(this.velocity.x, y * airResistance, this.velocity.z)
+        var yVel = this.velocity.y
+        var gravity = -0.08 // gravity
+
+        // Slow falling
+        if (velocity.y <= 0.0 && hasStatusEffect(StatusEffects.SLOW_FALLING)) {
+            gravity = -0.01
+            this.onLanding()
+        }
+
+        // Levitation
+        if (levitating) {
+            yVel += (0.05 * (getStatusEffect(StatusEffects.LEVITATION)!!.amplifier + 1).toDouble() - yVel) * 0.2
+            onLanding()
+        }
+
+        // Apply gravity
+        if (!world.isClient || world.chunkManager.isChunkLoaded(ChunkSectionPos.getSectionCoord(blockPos.x), ChunkSectionPos.getSectionCoord(blockPos.z))) {
+            if (!hasNoGravity() && !levitating)
+                yVel += gravity
+
+            val airResistance = 0.9800000190734863
+            this.velocity = Vec3d(this.velocity.x, yVel * airResistance, this.velocity.z)
+        }
+
+        else { // If chunk is not loaded slowly fall to bottomY
+            yVel = if (this.y > world.bottomY.toDouble()) -0.1 else 0.0
+            this.velocity = Vec3d(this.velocity.x, yVel, this.velocity.z)
+        }
+
     }
     private fun PlayerEntity.minecraft_getMoveSpeed(): Float {
         val f2 = this.getSlipperiness()
@@ -140,21 +158,19 @@ object ReSquakeClient {
 
     private fun PlayerEntity.quake_moveEntityWithHeading(sidemove: Float, forwardmove: Float): Boolean {
         // take care of ladder movement using default code
-        if (this.isClimbing) return false
-        if (this.isInLava && !this.abilities.flying) return false
-        if (this.isTouchingWater && !this.abilities.flying)
-            return false // TODO: sharking
+        if (this.isClimbing                               ) return false
+        if (this.isInLava && !this.abilities.flying       ) return false
+        if (this.isTouchingWater && !this.abilities.flying) return false // TODO: sharking
 
         // get all relevant movement values
         val wishdir = this.getMovementDirection(sidemove, forwardmove)
         val wishspeed = if (sidemove != 0.0f || forwardmove != 0.0f) this.quake_getMoveSpeed() else 0.0f
         val onGroundForReal = this.isOnGround && !MinecraftClient.getInstance().player!!.input.jumping
-        val momentumRetention = this.getSlipperiness()
 
         // ground movement
         if (onGroundForReal) {
             // apply friction before acceleration, so we can accelerate back up to max speed afterward
-            this.minecraft_ApplyFriction(momentumRetention)
+            this.applyFriction(this.getSlipperiness())
             var svAccelerate = ReSquakeMod.config.acceleration
             if (wishspeed != 0.0f) {
                 // alter based on the surface friction
@@ -187,7 +203,7 @@ object ReSquakeClient {
         this.move(MovementType.SELF, this.velocity)
 
         // HL2 code applies half gravity before acceleration and half after acceleration, but this seems to work fine
-        this.minecraft_ApplyGravity()
+        this.applyGravity()
 
         // Move arms and legs
         this.updateLimbs(this is Flutterer);

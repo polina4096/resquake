@@ -10,7 +10,6 @@ import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import polina4096.resquake.ReSquakeClient;
-import polina4096.resquake.ReSquakeMod;
 
 @Mixin(PlayerEntity.class)
 public abstract class MixinPlayerEntity {
@@ -23,7 +22,7 @@ public abstract class MixinPlayerEntity {
 	@Inject(method = "travel", at = @At("HEAD"), cancellable = true)
 	public void travelInject(Vec3d movementInput, CallbackInfo ci) {
 		PlayerEntity player = (PlayerEntity)(Object)this;
-		if (ReSquakeClient.INSTANCE.moveEntityWithHeading(player, (float)movementInput.x, (float)movementInput.z)) {
+		if (ReSquakeClient.INSTANCE.travel(player, (float)movementInput.x, (float)movementInput.z)) {
 			ci.cancel();
 		}
 	}
@@ -31,7 +30,7 @@ public abstract class MixinPlayerEntity {
 	@Inject(method = "tick", at = @At("HEAD"))
 	public void tickInject(CallbackInfo ci) {
 		PlayerEntity player = (PlayerEntity)(Object)this;
-		ReSquakeClient.INSTANCE.beforeOnLivingUpdate(player);
+		ReSquakeClient.INSTANCE.beforeTick(player);
 	}
 
 	public boolean velocityChanged = false;
