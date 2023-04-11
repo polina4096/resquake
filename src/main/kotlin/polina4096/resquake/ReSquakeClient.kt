@@ -75,17 +75,13 @@ object ReSquakeClient {
         return this.getBlockState(pos).block.slipperiness
     }
 
-    private fun PlayerEntity.getSlipperiness(): Float {
+    private fun PlayerEntity.getSlipperiness(): Double {
         if (this.isOnGround) {
-            val x = MathHelper.floor(this.x)
-            val y = MathHelper.floor(this.boundingBox.minY) - 1
-            val z = MathHelper.floor(this.z)
-            val groundPos = BlockPos(x, y, z)
-
-            return 1.0f - this.world.getSlipperiness(groundPos)
+            val groundPos = BlockPos.ofFloored(this.x, this.boundingBox.minY - 1, this.z)
+            return this.world.getSlipperiness(groundPos).toDouble()
         }
 
-        return 1.0f
+        return 0.0
     }
     private fun PlayerEntity.isFlying(): Boolean = this.abilities.flying && this.vehicle == null
     private fun PlayerEntity.getMovementDirection(sidemoveInitial: Float, forwardmoveInitial: Float): Vec2f {
@@ -112,11 +108,6 @@ object ReSquakeClient {
         return Vec2f(0.0f, 0.0f)
     }
 
-    private fun PlayerEntity.applyFriction(momentumRetention: Float) {
-        val x = this.velocity.x * momentumRetention.toDouble()
-        val z = this.velocity.z * momentumRetention.toDouble()
-        this.velocity = Vec3d(x, this.velocity.y, z)
-    }
     private fun PlayerEntity.applyGravity() {
         val levitating = hasStatusEffect(StatusEffects.LEVITATION)
 
@@ -150,9 +141,9 @@ object ReSquakeClient {
         }
 
     }
-    private fun PlayerEntity.minecraft_getMoveSpeed(): Float {
-        val f2 = this.getSlipperiness()
-        val f3 = 0.16277136f / (f2 * f2 * f2)
+    // Returns player base speed with regard to block slipperiness
+    private fun PlayerEntity.applySlipperiness(slipperiness: Double): Double {
+        val f3 = 0.16277136 / (slipperiness * slipperiness * slipperiness)
         return this.movementSpeed * f3
     }
 
@@ -169,13 +160,16 @@ object ReSquakeClient {
 
         // ground movement
         if (onGroundForReal) {
-            // apply friction before acceleration, so we can accelerate back up to max speed afterward
-            this.applyFriction(this.getSlipperiness())
+            val slipperiness = this.getSlipperiness()
+            val xVel = this.velocity.x * slipperiness
+            val zVel = this.velocity.z * slipperiness
+            this.velocity = Vec3d(xVel, this.velocity.y, zVel)
+
             var svAccelerate = ReSquakeMod.config.acceleration
             if (wishspeed != 0.0f) {
                 // alter based on the surface friction
-                svAccelerate *= (this.minecraft_getMoveSpeed() * 2.15f / wishspeed).toDouble()
-                this.quake_Accelerate(wishspeed, wishdir.x.toDouble(), wishdir.y.toDouble(), svAccelerate)
+                svAccelerate *= (this.applySlipperiness(slipperiness) * 2.15f / wishspeed)
+                this.quake_Accelerate(wishspeed, wishdir.x.toDouble(), wishdir.y.toDouble(), svAccelerate, slipperiness)
             }
 
             if (baseVelocities.isNotEmpty()) {
@@ -254,7 +248,7 @@ object ReSquakeClient {
 
         return false
     }
-    private fun PlayerEntity.quake_Accelerate(wishspeed: Float, wishX: Double, wishZ: Double, accel: Double) {
+    private fun PlayerEntity.quake_Accelerate(wishspeed: Float, wishX: Double, wishZ: Double, accel: Double, slipperiness: Double) {
         // Determine veer amount; this is a dot product
         val currentSpeed = this.velocity.x * wishX + this.velocity.z * wishZ
 
@@ -265,10 +259,8 @@ object ReSquakeClient {
         if (addSpeed <= 0) return
 
         // Determine acceleration speed after acceleration
-        var accelSpeed = accel * wishspeed / this.getSlipperiness() * 0.05f
-
-        // Cap it
-        if (accelSpeed > addSpeed) accelSpeed = addSpeed
+        var accelSpeed = accel * wishspeed / slipperiness * 0.05f
+        if (accelSpeed > addSpeed) accelSpeed = addSpeed // Cap it
 
         // Adjust move velocity
         val x = this.velocity.x + accelSpeed * wishX
