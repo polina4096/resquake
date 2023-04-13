@@ -113,7 +113,7 @@ object ReSquakeClient {
     private const val QUAKE_SNEAKING_SPEED_MULTIPLIER = 1.10
     private fun PlayerEntity.getSlipperiness(): Double {
         if (this.isOnGround) {
-            val groundPos = BlockPos.ofFloored(this.x, this.boundingBox.minY - 1, this.z)
+            val groundPos = BlockPos(floor(this.x), floor(this.boundingBox.minY - 1), floor(this.z))
             return this.world.getBlockState(groundPos).block.slipperiness.toDouble()
         }
 
@@ -186,7 +186,7 @@ object ReSquakeClient {
         this.applyGravity()
 
         // Move arms and legs
-        this.updateLimbs(this is Flutterer)
+        this.method_29242(this, this is Flutterer)
 
         return true
     }
