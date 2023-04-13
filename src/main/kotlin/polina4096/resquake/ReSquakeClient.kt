@@ -20,10 +20,14 @@ import kotlin.math.sqrt
 object ReSquakeClient {
     private var baseVelocities = mutableListOf<Pair<Double, Double>>()
 
+    var previousSpeed : Double  = 0.0
+    var currentSpeed  : Double  = 0.0
+    var bunnyHopping  : Boolean = false
+
     // API
     fun updateVelocity(player: Entity, speed: Float, sidemove: Double, forwardmove: Double): Boolean {
         // When the bunnyhop is enabled
-        if (!ReSquakeMod.config.bunnyhopEnabled) return false
+        if (!ReSquakeMod.config.quakeMovementEnabled) return false
 
         if (player !is PlayerEntity) return false // We are only interested in players
         if (!player.world.isClient)  return false // And only in the client player
@@ -40,7 +44,7 @@ object ReSquakeClient {
         return true
     }
     fun afterJump(player: PlayerEntity) {
-        if (player.world.isClient && ReSquakeMod.config.bunnyhopEnabled) {
+        if (player.world.isClient && ReSquakeMod.config.quakeMovementEnabled) {
             if (player.isSprinting) {
                 val f = player.yaw * 0.017453292f
                 val xVel = player.velocity.x + sin(f) * 0.2
@@ -48,17 +52,20 @@ object ReSquakeClient {
                 player.velocity = Vec3d(xVel, player.velocity.y, zVel)
             }
 
-            val maxMoveSpeed = player.getBaseSpeedMax()
+            val speed = player.getSpeed()
+            previousSpeed = currentSpeed
+            currentSpeed  = speed
 
-            player.applySoftCap(maxMoveSpeed)
+            val maxMoveSpeed = player.getBaseSpeedMax()
+            player.applySoftCap(maxMoveSpeed, speed)
 
             val didTrimp = player.trimp()
             if (!didTrimp) player.applyHardCap(maxMoveSpeed)
-            player.spawnBunnyhopParticles(ReSquakeMod.config.bunnyhopParticles)
+            player.spawnBunnyhopParticles(ReSquakeMod.config.jumpParticles)
         }
     }
     fun travel(player: PlayerEntity, sidemove: Double, forwardmove: Double): Boolean {
-        if (!ReSquakeMod.config.bunnyhopEnabled                                       ) return false
+        if (!ReSquakeMod.config.quakeMovementEnabled                                  ) return false
         if (!player.world.isClient                                                    ) return false
         if ((player.abilities.flying || player.isFallFlying) && player.vehicle == null) return false
 
@@ -71,6 +78,7 @@ object ReSquakeClient {
             return true
         }
 
+        bunnyHopping = false
         return false
     }
     fun beforeTick(player: PlayerEntity) {
@@ -130,11 +138,12 @@ object ReSquakeClient {
         if (this.isClimbing                               ) return false
         if (this.isInLava && !this.abilities.flying       ) return false
         if (this.isTouchingWater && !this.abilities.flying) return false // TODO: sharking
+        bunnyHopping = MinecraftClient.getInstance().player!!.input.jumping
 
         // get all relevant movement values
         val wishdir = this.getMovementDirection(sidemove, forwardmove)
         val wishspeed = if (sidemove != 0.0 || forwardmove != 0.0) this.getBaseSpeedCurrent() else 0.0
-        val onGroundForReal = this.isOnGround && !MinecraftClient.getInstance().player!!.input.jumping
+        val onGroundForReal = this.isOnGround && !bunnyHopping
 
         // ground movement
         if (onGroundForReal) {
@@ -256,16 +265,15 @@ object ReSquakeClient {
         val z = this.velocity.z + accelSpeed * wishZ
         this.velocity = Vec3d(x, this.velocity.y, z)
     }
-    private fun PlayerEntity.applySoftCap(moveSpeed: Double) {
+    private fun PlayerEntity.applySoftCap(baseSpeed: Double, speed: Double) {
         var softCapPercent = ReSquakeMod.config.softCapThreshold
         var softCapDegen   = ReSquakeMod.config.softCapDegen
-        if (ReSquakeMod.config.bunnyhopUncapped) {
+        if (ReSquakeMod.config.uncappedBunnyhop) {
             softCapPercent = 1.0
             softCapDegen   = 1.0
         }
 
-        val speed = this.getSpeed()
-        val softCap = moveSpeed * softCapPercent
+        val softCap = baseSpeed * softCapPercent
 
         // apply soft cap first; if soft -> hard is not done, then you can continually trigger only the hard cap and stay at the hard cap
         if (speed > softCap) {
@@ -279,11 +287,11 @@ object ReSquakeClient {
             }
         }
     }
-    private fun PlayerEntity.applyHardCap(moveSpeed: Double) {
-        if (ReSquakeMod.config.bunnyhopUncapped) return
+    private fun PlayerEntity.applyHardCap(baseSpeed: Double) {
+        if (ReSquakeMod.config.uncappedBunnyhop) return
 
         val hardCapPercent = ReSquakeMod.config.hardCapThreshold
-        val hardCap = moveSpeed * hardCapPercent
+        val hardCap = baseSpeed * hardCapPercent
         val speed = this.getSpeed()
 
         if (speed > hardCap && hardCap != 0.0) {
@@ -315,7 +323,7 @@ object ReSquakeClient {
                     this.velocity = Vec3d(xVel, yVel, zVel)
                 }
 
-                this.spawnBunnyhopParticles(ReSquakeMod.config.bunnyhopParticles * 2)
+                this.spawnBunnyhopParticles(ReSquakeMod.config.jumpParticles * 2)
 
                 return true
             }
