@@ -1,5 +1,7 @@
 package polina4096.resquake
 
+import net.fabricmc.api.EnvType
+import net.fabricmc.api.Environment
 import net.minecraft.block.BlockRenderType
 import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.Entity
@@ -19,8 +21,6 @@ import kotlin.math.sqrt
 
 
 object ReSquakePlayer {
-    private val mc = MinecraftClient.getInstance()
-
     private var baseVelocities = mutableListOf<Pair<Double, Double>>()
 
     var previousSpeed : Double  = 0.0
@@ -152,9 +152,6 @@ object ReSquakePlayer {
 
         val flying = (this.abilities.flying || this.isFallFlying)
         if (this.isInLava && !flying) return false // Swimming in lava
-
-        // Used to show speed delta indicator
-        bunnyHopping = mc.player!!.input.jumping
 
         // Collect all relevant movement values
         val wishdir = this.getMovementDirection(sidemove, forwardmove)
