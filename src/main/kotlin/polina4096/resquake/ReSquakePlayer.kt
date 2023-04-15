@@ -18,7 +18,7 @@ import kotlin.math.sin
 import kotlin.math.sqrt
 
 
-object ReSquakeClient {
+object ReSquakePlayer {
     private val mc = MinecraftClient.getInstance()
 
     private var baseVelocities = mutableListOf<Pair<Double, Double>>()
@@ -26,7 +26,6 @@ object ReSquakeClient {
     var previousSpeed : Double  = 0.0
     var currentSpeed  : Double  = 0.0
     var bunnyHopping  : Boolean = false
-    var sharking      : Boolean = false
 
     private fun collectSpeed(speed: Double) {
         previousSpeed = currentSpeed
@@ -93,7 +92,6 @@ object ReSquakeClient {
         }
 
         bunnyHopping = false
-        sharking = false
         return false
     }
     fun beforeTick(player: PlayerEntity) {
@@ -150,7 +148,7 @@ object ReSquakeClient {
 
     private fun PlayerEntity.travelQuake(sidemove: Double, forwardmove: Double): Boolean {
         // Fallback to default minecraft movement
-        if (this.isClimbing) return false // On ladders
+        if (this.isClimbing || this.isInSwimmingPose) return false
 
         val flying = (this.abilities.flying || this.isFallFlying)
         if (this.isInLava && !flying) return false // Swimming in lava
@@ -205,8 +203,7 @@ object ReSquakeClient {
 
             // Movement on top of water
             if (ReSquakeMod.config.sharkingEnabled && ReSquakeMod.config.sharkingSurfaceTension > 0.0 && bunnyHopping && this.velocity.y < 0.0) {
-                val boundingBox = this.boundingBox.offset(this.velocity)
-                val isFallingIntoWater = this.world.containsFluid(boundingBox)
+                val isFallingIntoWater = this.world.containsFluid(this.boundingBox.offset(this.velocity))
                 if (isFallingIntoWater) this.velocity = Vec3d(this.velocity.x, this.velocity.y * ReSquakeMod.config.sharkingSurfaceTension, this.velocity.z)
             }
         }
@@ -377,11 +374,10 @@ object ReSquakeClient {
     }
     private fun PlayerEntity.travelWaterQuake(wishspeed: Double, wishX: Double, wishZ: Double, sidemove: Double, forwardmove: Double) {
         // Collect all relevant movement values
-        sharking = bunnyHopping && this.doesNotCollide(0.0, 1.0, 0.0)
         val speed = this.getSpeed()
 
         // Move in water
-        if (!sharking || speed < 0.078f)
+        if (!bunnyHopping && this.doesNotCollide(0.0, 1.0, 0.0) || speed < 0.078f)
             this.waterMove(sidemove, forwardmove)
 
         // Swim in water

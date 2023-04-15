@@ -25,6 +25,12 @@
 				"adapter": "kotlin"
 			}
 		],
+		"client": [
+			{
+				"value": "polina4096.resquake.ReSquakeModClient",
+				"adapter": "kotlin"
+			}
+		],
 		"modmenu": [
 			{
 				"value": "polina4096.resquake.integration.ModMenuIntegration",
