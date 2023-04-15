@@ -22,7 +22,7 @@ public abstract class MixinPlayerEntity {
 	@Inject(method = "travel", at = @At("HEAD"), cancellable = true)
 	public void travelInject(Vec3d movementInput, CallbackInfo ci) {
 		PlayerEntity player = (PlayerEntity)(Object)this;
-		if (ReSquakeClient.INSTANCE.travel(player, (float)movementInput.x, (float)movementInput.z)) {
+		if (ReSquakeClient.INSTANCE.travel(player, movementInput)) {
 			ci.cancel();
 		}
 	}

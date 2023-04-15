@@ -22,7 +22,7 @@ object ReSquakeMod : ModInitializer {
 		val mc = MinecraftClient.getInstance()
 		HudRenderCallback.EVENT.register { matrices: MatrixStack, tickDelta: Float ->
 			val speed = ReSquakeClient.currentSpeed * 20
-			if (!config.speedDeltaIndicatorEnabled || !ReSquakeClient.bunnyHopping || speed < config.speedDeltaThreshold)
+			if (!config.speedDeltaIndicatorEnabled || !ReSquakeClient.bunnyHopping || !ReSquakeClient.sharking || speed < config.speedDeltaThreshold)
 				return@register
 
 			val posX = mc.window.scaledWidth  / 2.0f

@@ -17,12 +17,21 @@ import kotlin.math.floor
 import kotlin.math.sin
 import kotlin.math.sqrt
 
+
 object ReSquakeClient {
+    private val mc = MinecraftClient.getInstance()
+
     private var baseVelocities = mutableListOf<Pair<Double, Double>>()
 
     var previousSpeed : Double  = 0.0
     var currentSpeed  : Double  = 0.0
     var bunnyHopping  : Boolean = false
+    var sharking      : Boolean = false
+
+    private fun collectSpeed(speed: Double) {
+        previousSpeed = currentSpeed
+        currentSpeed  = speed
+    }
 
     // API
     fun updateVelocity(player: Entity, speed: Float, sidemove: Double, forwardmove: Double): Boolean {
@@ -52,9 +61,9 @@ object ReSquakeClient {
                 player.velocity = Vec3d(xVel, player.velocity.y, zVel)
             }
 
+            // Update last recorded speed
             val speed = player.getSpeed()
-            previousSpeed = currentSpeed
-            currentSpeed  = speed
+            collectSpeed(speed)
 
             val maxMoveSpeed = player.getBaseSpeedMax()
             player.applySoftCap(maxMoveSpeed, speed)
@@ -64,21 +73,27 @@ object ReSquakeClient {
             player.spawnBunnyhopParticles(ReSquakeMod.config.jumpParticles)
         }
     }
-    fun travel(player: PlayerEntity, sidemove: Double, forwardmove: Double): Boolean {
-        if (!ReSquakeMod.config.quakeMovementEnabled                                  ) return false
-        if (!player.world.isClient                                                    ) return false
-        if ((player.abilities.flying || player.isFallFlying) && player.vehicle == null) return false
+    fun travel(player: PlayerEntity, movementInput: Vec3d): Boolean {
+        if (!ReSquakeMod.config.quakeMovementEnabled
+            ||  !player.world.isClient
+            ||   player.abilities.flying
+            ||   player.isFallFlying
+            ||   player.vehicle != null)
+            return false
 
         val dX = player.x
         val dY = player.y
         val dZ = player.z
-        if (player.travelQuake(sidemove, forwardmove)) {
+        if (player.travelQuake(movementInput.x, movementInput.z)) {
             player.increaseTravelMotionStats(player.x - dX, player.y - dY, player.z - dZ)
 
+            // Swing arms and legs
+            player.updateLimbs(player is Flutterer)
             return true
         }
 
         bunnyHopping = false
+        sharking = false
         return false
     }
     fun beforeTick(player: PlayerEntity) {
@@ -93,7 +108,7 @@ object ReSquakeClient {
             var speed = sqrt(preSpeed)
 
             speed = if (speed < 1.0) 1.0
-                    else             1.0 / speed
+            else             1.0 / speed
 
             val sidemove    = sidemoveInitial    * speed
             val forwardmove = forwardmoveInitial * speed
@@ -134,26 +149,36 @@ object ReSquakeClient {
     }
 
     private fun PlayerEntity.travelQuake(sidemove: Double, forwardmove: Double): Boolean {
-        // take care of ladder movement using default code
-        if (this.isClimbing                               ) return false
-        if (this.isInLava && !this.abilities.flying       ) return false
-        if (this.isTouchingWater && !this.abilities.flying) return false // TODO: sharking
-        bunnyHopping = MinecraftClient.getInstance().player!!.input.jumping
+        // Fallback to default minecraft movement
+        if (this.isClimbing) return false // On ladders
 
-        // get all relevant movement values
+        val flying = (this.abilities.flying || this.isFallFlying)
+        if (this.isInLava && !flying) return false // Swimming in lava
+
+        // Used to show speed delta indicator
+        bunnyHopping = mc.player!!.input.jumping
+
+        // Collect all relevant movement values
         val wishdir = this.getMovementDirection(sidemove, forwardmove)
         val wishspeed = if (sidemove != 0.0 || forwardmove != 0.0) this.getBaseSpeedCurrent() else 0.0
         val onGroundForReal = this.isOnGround && !bunnyHopping
 
-        // ground movement
+        // Sharking
+        if (this.isTouchingWater && !flying) {
+            if (ReSquakeMod.config.sharkingEnabled) {
+                this.travelWaterQuake(wishspeed, wishdir.first, wishdir.second, sidemove, forwardmove)
+                return true
+            }
+        }
+
+        // Ground movement
         if (onGroundForReal) {
             val slipperiness = this.getSlipperiness()
             val xVel = this.velocity.x * slipperiness
             val zVel = this.velocity.z * slipperiness
             this.velocity = Vec3d(xVel, this.velocity.y, zVel)
 
-            if (wishspeed != 0.0) {
-                // alter based on the surface friction
+            if (wishspeed != 0.0) { // Alter based on the surface friction
                 val acceleration = ReSquakeMod.config.acceleration * (0.16277136 / (slipperiness * slipperiness * slipperiness))
                 this.accelerate(wishspeed, wishdir.first, wishdir.second, acceleration, slipperiness)
             }
@@ -171,23 +196,28 @@ object ReSquakeClient {
 
                 this.velocity = Vec3d(x, this.velocity.y, z)
             }
-        } else { // air movement
+        }
+
+        // Air movement
+        else {
             val airAcceleration = ReSquakeMod.config.airAcceleration
             this.airAccelerate(wishspeed, wishdir.first, wishdir.second, airAcceleration)
 
-            // TODO: sharking here
-            // some code must be here :')
+            // Movement on top of water
+            if (ReSquakeMod.config.sharkingEnabled && ReSquakeMod.config.sharkingSurfaceTension > 0.0 && bunnyHopping && this.velocity.y < 0.0) {
+                val boundingBox = this.boundingBox.offset(this.velocity)
+                val isFallingIntoWater = this.world.containsFluid(boundingBox)
+                if (isFallingIntoWater) this.velocity = Vec3d(this.velocity.x, this.velocity.y * ReSquakeMod.config.sharkingSurfaceTension, this.velocity.z)
+            }
         }
 
-        // apply velocity
+        // Apply velocity
         this.move(MovementType.SELF, this.velocity)
 
         // HL2 code applies half gravity before acceleration and half after acceleration, but this seems to work fine
         this.applyGravity()
 
-        // Move arms and legs
-        this.updateLimbs(this is Flutterer)
-
+        // Cancel default minecraft movement behavior
         return true
     }
 
@@ -224,6 +254,7 @@ object ReSquakeClient {
         }
 
     }
+
     private fun PlayerEntity.accelerate(wishspeed: Double, wishX: Double, wishZ: Double, acceleration: Double, slipperiness: Double) {
         // Determine veer amount; this is a dot product
         val currentSpeed = this.velocity.x * wishX + this.velocity.z * wishZ
@@ -305,12 +336,12 @@ object ReSquakeClient {
     // Trimping
     private fun PlayerEntity.trimp(): Boolean {
         if (ReSquakeMod.config.trimpingEnabled && this.isSneaking) {
-            val currentSpeed     = this.getSpeed()
-            val maxMovementSpeed = this.getBaseSpeedMax()
+            val speed = this.getSpeed()
+            val maxBaseSpeed = this.getBaseSpeedMax()
 
             // Player has gained at least some additional speed to walking speed
-            if (currentSpeed > maxMovementSpeed) {
-                var speedBonus = currentSpeed / maxMovementSpeed * 0.5
+            if (speed > maxBaseSpeed) {
+                var speedBonus = speed / maxBaseSpeed * 0.5
                 if (speedBonus > 1.0) speedBonus = 1.0
 
                 val trimpMultiplier = ReSquakeMod.config.trimpMultiplier
@@ -319,7 +350,7 @@ object ReSquakeClient {
                     val multiplier = 1.0 / trimpMultiplier
                     val xVel = this.velocity.x * multiplier
                     val zVel = this.velocity.z * multiplier
-                    val yVel = speedBonus * currentSpeed * trimpMultiplier
+                    val yVel = speedBonus * speed * trimpMultiplier
                     this.velocity = Vec3d(xVel, yVel, zVel)
                 }
 
@@ -330,6 +361,44 @@ object ReSquakeClient {
         }
 
         return false
+    }
+
+    // Sharking
+    private fun PlayerEntity.waterMove(sidemove: Double, forwardmove: Double) {
+        val yPosPrev: Double = this.y
+        this.updateVelocity(0.04f, Vec3d(sidemove, 0.0, forwardmove))
+        this.move(MovementType.SELF, this.velocity)
+
+        val velocity = this.velocity.multiply(0.800000011920929)
+        this.velocity = if (!this.isSwimming) velocity.add(0.0, -0.01, 0.0) else velocity
+
+        if (this.horizontalCollision && this.doesNotCollide(this.velocity.x, this.velocity.y + 0.6000000238418579 - this.y + yPosPrev, this.velocity.z))
+            this.velocity = Vec3d(this.velocity.x, 0.30000001192092896, this.velocity.z)
+    }
+    private fun PlayerEntity.travelWaterQuake(wishspeed: Double, wishX: Double, wishZ: Double, sidemove: Double, forwardmove: Double) {
+        // Collect all relevant movement values
+        sharking = bunnyHopping && this.doesNotCollide(0.0, 1.0, 0.0)
+        val speed = this.getSpeed()
+
+        // Move in water
+        if (!sharking || speed < 0.078f)
+            this.waterMove(sidemove, forwardmove)
+
+        // Swim in water
+        else {
+            // Update last recorded speed
+            collectSpeed(speed)
+
+            // Apply friction
+            if (speed > 0.090) this.velocity = this.velocity.multiply(ReSquakeMod.config.sharkingFriction)
+
+            // Accelerate
+            if (speed > 0.098) this.airAccelerate(wishspeed, wishX, wishZ, ReSquakeMod.config.acceleration)
+                          else this.accelerate(wishspeed, wishX, wishZ, ReSquakeMod.config.acceleration, 1.0)
+
+            this.move(MovementType.SELF, this.velocity)
+            this.velocity = Vec3d(velocity.x, if (velocity.y >= 0) velocity.y else 0.0, velocity.z)
+        }
     }
 
     // Particles
