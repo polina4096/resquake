@@ -15,11 +15,10 @@ import org.lwjgl.glfw.GLFW
 object ReSquakeModClient : ClientModInitializer {
     private var keyBinding: KeyBinding = KeyBindingHelper.registerKeyBinding(KeyBinding("key.${ReSquakeMod.ID}.toggle", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_B, "category.${ReSquakeMod.ID}"))
 
-    private var bunnyHopping: Boolean = false
-
     override fun onInitializeClient() {
         ClientTickEvents.END_CLIENT_TICK.register(ClientTickEvents.EndTick { client: MinecraftClient ->
-            bunnyHopping = client.player!!.input.jumping
+            if (client.player != null)
+                ReSquakePlayer.bunnyHopping = client.player!!.input.jumping
 
             while (keyBinding.wasPressed()) {
                 ReSquakeMod.config.quakeMovementEnabled = !ReSquakeMod.config.quakeMovementEnabled
