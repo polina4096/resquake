@@ -1,9 +1,6 @@
 package polina4096.resquake
 
-import net.fabricmc.api.EnvType
-import net.fabricmc.api.Environment
 import net.minecraft.block.BlockRenderType
-import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.Entity
 import net.minecraft.entity.Flutterer
 import net.minecraft.entity.MovementType
@@ -14,7 +11,6 @@ import net.minecraft.particle.ParticleTypes
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.ChunkSectionPos
 import net.minecraft.util.math.Vec3d
-import polina4096.resquake.ReSquakePlayer.travelQuake
 import kotlin.math.cos
 import kotlin.math.floor
 import kotlin.math.sin
@@ -88,7 +84,7 @@ object ReSquakePlayer {
             player.increaseTravelMotionStats(player.x - dX, player.y - dY, player.z - dZ)
 
             // Swing arms and legs
-            player.method_29242(player, player is Flutterer)
+            player.updateLimbs(player, player is Flutterer)
             return true
         }
 
