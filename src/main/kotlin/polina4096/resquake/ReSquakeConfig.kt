@@ -16,7 +16,8 @@ class ReSquakeConfig(@Transient var path: Path? = null) {
     /* General */
     // Movement
     var quakeMovementEnabled       : Boolean = DEFAULT_QUAKE_MOVEMENT_ENABLED
-    var trimpingEnabled            : Boolean = DEFAULT_TRIMPING_ENABLED
+    var      trimpingEnabled       : Boolean = DEFAULT_TRIMPING_ENABLED
+    var      sharkingEnabled       : Boolean = DEFAULT_SHARKING_ENABLED
 
     // Miscellaneous
     var uncappedBunnyhop           : Boolean = DEFAULT_UNCAPPED_BUNNYHOP
@@ -32,15 +33,19 @@ class ReSquakeConfig(@Transient var path: Path? = null) {
 
     /* Movement constants */
     // Bunnyhop
-    var softCapThreshold : Double = DEFAULT_SOFT_CAP_THRESHOLD
-    var hardCapThreshold : Double = DEFAULT_HARD_CAP_THRESHOLD
-    var acceleration     : Double = DEFAULT_ACCELERATION
-    var airAcceleration  : Double = DEFAULT_AIR_ACCELERATION
-    var maxAAccPerTick   : Double = DEFAULT_MAX_AACEL_PER_TICK
-    var softCapDegen     : Double = DEFAULT_SOFT_CAP_DEGEN
+    var softCapThreshold       : Double = DEFAULT_SOFT_CAP_THRESHOLD
+    var hardCapThreshold       : Double = DEFAULT_HARD_CAP_THRESHOLD
+    var acceleration           : Double = DEFAULT_ACCELERATION
+    var airAcceleration        : Double = DEFAULT_AIR_ACCELERATION
+    var maxAAccPerTick         : Double = DEFAULT_MAX_AACEL_PER_TICK
+    var softCapDegen           : Double = DEFAULT_SOFT_CAP_DEGEN
 
     // Trimping
-    var trimpMultiplier  : Double = DEFAULT_TRIMP_MULTIPLIER
+    var trimpMultiplier        : Double = DEFAULT_TRIMP_MULTIPLIER
+
+    // Sharking
+    var sharkingFriction       : Double = DEFAULT_SHARKING_FRICTION
+    var sharkingSurfaceTension : Double = DEFAULT_SHARKING_SURFACE_TENSION
 
     fun save() {
         path!!.writeText(json.encodeToString(this))
@@ -51,6 +56,7 @@ class ReSquakeConfig(@Transient var path: Path? = null) {
         // Movement
         const val DEFAULT_QUAKE_MOVEMENT_ENABLED        = true
         const val DEFAULT_TRIMPING_ENABLED              = true
+        const val DEFAULT_SHARKING_ENABLED              = true
 
         // Miscellaneous
         const val DEFAULT_UNCAPPED_BUNNYHOP             = true
@@ -66,15 +72,19 @@ class ReSquakeConfig(@Transient var path: Path? = null) {
 
         /* Movement constants */
         // Bunnyhop
-        const val DEFAULT_SOFT_CAP_THRESHOLD = 544.00
-        const val DEFAULT_HARD_CAP_THRESHOLD = 544.00
-        const val DEFAULT_ACCELERATION       =  10.00
-        const val DEFAULT_AIR_ACCELERATION   =  10.00
-        const val DEFAULT_MAX_AACEL_PER_TICK =   0.05
-        const val DEFAULT_SOFT_CAP_DEGEN     =   0.65
+        const val DEFAULT_SOFT_CAP_THRESHOLD       = 544.000
+        const val DEFAULT_HARD_CAP_THRESHOLD       = 544.000
+        const val DEFAULT_ACCELERATION             =  10.000
+        const val DEFAULT_AIR_ACCELERATION         =  10.000
+        const val DEFAULT_MAX_AACEL_PER_TICK       =   0.050
+        const val DEFAULT_SOFT_CAP_DEGEN           =   0.650
 
         // Trimping
-        const val DEFAULT_TRIMP_MULTIPLIER   =   1.40
+        const val DEFAULT_TRIMP_MULTIPLIER         =   1.400
+
+        // Sharking
+        const val DEFAULT_SHARKING_FRICTION        =   0.995
+        const val DEFAULT_SHARKING_SURFACE_TENSION =   0.800
 
         fun load(path: Path): ReSquakeConfig {
             if (!path.exists()) return ReSquakeConfig(path)

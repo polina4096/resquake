@@ -48,6 +48,15 @@ class ModMenuIntegration : ModMenuApi {
                         .build())
                     .build())
 
+                .option(Option.createBuilder(Boolean::class.javaPrimitiveType)
+                    .name(Text.of("Sharking"))
+                    .tooltip(Text.of("Enables/disables sharking (water glide)"))
+                    .binding(ReSquakeConfig.DEFAULT_SHARKING_ENABLED,
+                        { ReSquakeMod.config.sharkingEnabled },
+                        { ReSquakeMod.config.sharkingEnabled = it })
+                    .controller(::BooleanController)
+                    .build())
+
                 .group(OptionGroup.createBuilder()
                     .name(Text.of("Miscellaneous"))
                     .collapsed(false)
@@ -133,7 +142,7 @@ class ModMenuIntegration : ModMenuApi {
                 .name(Text.of("Constants"))
                 .tooltip(Text.of("Movement-related values"))
                 .group(OptionGroup.createBuilder()
-                    .name(Text.of("Constants"))
+                    .name(Text.of("Quake-style movement"))
                     .collapsed(false)
                     .option(Option.createBuilder(Double::class.javaPrimitiveType)
                         .name(Text.of("Soft cap threshold"))
@@ -188,13 +197,37 @@ class ModMenuIntegration : ModMenuApi {
                             { ReSquakeMod.config.softCapDegen = it })
                         .controller(::DoubleFieldController)
                         .build())
+                    .build())
 
+                .group(OptionGroup.createBuilder()
+                    .name(Text.of("Trimping"))
+                    .collapsed(false)
                     .option(Option.createBuilder(Double::class.javaPrimitiveType)
                         .name(Text.of("Trimp multiplier"))
                         .tooltip(Text.of("A lower value means less horizontal speed converted to vertical speed"))
                         .binding(ReSquakeConfig.DEFAULT_TRIMP_MULTIPLIER,
                             { ReSquakeMod.config.trimpMultiplier },
                             { ReSquakeMod.config.trimpMultiplier = it })
+                        .controller(::DoubleFieldController)
+                        .build())
+                    .build())
+
+                .group(OptionGroup.createBuilder()
+                    .name(Text.of("Sharking"))
+                    .collapsed(false)
+                    .option(Option.createBuilder(Double::class.javaPrimitiveType)
+                        .name(Text.of("Surface tension"))
+                        .binding(ReSquakeConfig.DEFAULT_SHARKING_SURFACE_TENSION,
+                            { ReSquakeMod.config.sharkingSurfaceTension },
+                            { ReSquakeMod.config.sharkingSurfaceTension = it })
+                        .controller(::DoubleFieldController)
+                        .build())
+
+                    .option(Option.createBuilder(Double::class.javaPrimitiveType)
+                        .name(Text.of("Sharking friction"))
+                        .binding(ReSquakeConfig.DEFAULT_SHARKING_FRICTION,
+                            { ReSquakeMod.config.sharkingFriction },
+                            { ReSquakeMod.config.sharkingFriction = it })
                         .controller(::DoubleFieldController)
                         .build())
                     .build())
