@@ -1,9 +1,6 @@
 package polina4096.resquake
 
-import net.fabricmc.api.EnvType
-import net.fabricmc.api.Environment
 import net.minecraft.block.BlockRenderType
-import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.Entity
 import net.minecraft.entity.Flutterer
 import net.minecraft.entity.MovementType
@@ -25,7 +22,8 @@ object ReSquakePlayer {
 
     var previousSpeed : Double  = 0.0
     var currentSpeed  : Double  = 0.0
-    var bunnyHopping  : Boolean = false
+    var isJumping     : Boolean = false
+    var isSwimming    : Boolean = false
 
     private fun collectSpeed(speed: Double) {
         previousSpeed = currentSpeed
@@ -91,7 +89,7 @@ object ReSquakePlayer {
             return true
         }
 
-        bunnyHopping = false
+        isJumping = false
         return false
     }
     fun beforeTick(player: PlayerEntity) {
@@ -156,15 +154,14 @@ object ReSquakePlayer {
         // Collect all relevant movement values
         val wishdir = this.getMovementDirection(sidemove, forwardmove)
         val wishspeed = if (sidemove != 0.0 || forwardmove != 0.0) this.getBaseSpeedCurrent() else 0.0
-        val onGroundForReal = this.isOnGround && !bunnyHopping
+        val onGroundForReal = this.isOnGround && !isJumping
 
         // Sharking
         if (this.isTouchingWater && !flying) {
-            if (ReSquakeMod.config.sharkingEnabled) {
-                this.travelWaterQuake(wishspeed, wishdir.first, wishdir.second, sidemove, forwardmove)
-                return true
-            }
-        }
+            if (ReSquakeMod.config.sharkingEnabled)
+                 return this.travelWaterQuake(wishspeed, wishdir.first, wishdir.second, sidemove, forwardmove)
+            else return false // Use default minecraft water movement if disabled (https://github.com/polina4096/resquake/issues/4)
+        } else isSwimming = false
 
         // Ground movement
         if (onGroundForReal) {
@@ -199,7 +196,7 @@ object ReSquakePlayer {
             this.airAccelerate(wishspeed, wishdir.first, wishdir.second, airAcceleration)
 
             // Movement on top of water
-            if (ReSquakeMod.config.sharkingEnabled && ReSquakeMod.config.sharkingSurfaceTension > 0.0 && bunnyHopping && this.velocity.y < 0.0) {
+            if (ReSquakeMod.config.sharkingEnabled && ReSquakeMod.config.sharkingSurfaceTension > 0.0 && isJumping && this.velocity.y < 0.0) {
                 val isFallingIntoWater = this.world.containsFluid(this.boundingBox.offset(this.velocity))
                 if (isFallingIntoWater) this.velocity = Vec3d(this.velocity.x, this.velocity.y * ReSquakeMod.config.sharkingSurfaceTension, this.velocity.z)
             }
@@ -358,27 +355,20 @@ object ReSquakePlayer {
     }
 
     // Sharking
-    private fun PlayerEntity.waterMove(sidemove: Double, forwardmove: Double) {
-        val yPosPrev: Double = this.y
-        this.updateVelocity(0.04f, Vec3d(sidemove, 0.0, forwardmove))
-        this.move(MovementType.SELF, this.velocity)
-
-        val velocity = this.velocity.multiply(0.800000011920929)
-        this.velocity = if (!this.isSwimming) velocity.add(0.0, -0.01, 0.0) else velocity
-
-        if (this.horizontalCollision && this.doesNotCollide(this.velocity.x, this.velocity.y + 0.6000000238418579 - this.y + yPosPrev, this.velocity.z))
-            this.velocity = Vec3d(this.velocity.x, 0.30000001192092896, this.velocity.z)
-    }
-    private fun PlayerEntity.travelWaterQuake(wishspeed: Double, wishX: Double, wishZ: Double, sidemove: Double, forwardmove: Double) {
+    private fun PlayerEntity.travelWaterQuake(wishspeed: Double, wishX: Double, wishZ: Double, sidemove: Double, forwardmove: Double): Boolean {
         // Collect all relevant movement values
         val speed = this.getSpeed()
 
         // Move in water
-        if (!bunnyHopping && this.doesNotCollide(0.0, 1.0, 0.0) || speed < 0.078f)
-            this.waterMove(sidemove, forwardmove)
+        if (!isJumping || !this.doesNotCollide(0.0, 1.0, 0.0) || speed < 0.078f) {
+            isSwimming = true
+            return false
+        }
 
         // Swim in water
         else {
+            isSwimming = false
+
             // Update last recorded speed
             collectSpeed(speed)
 
@@ -392,6 +382,8 @@ object ReSquakePlayer {
             this.move(MovementType.SELF, this.velocity)
             this.velocity = Vec3d(velocity.x, if (velocity.y >= 0) velocity.y else 0.0, velocity.z)
         }
+
+        return true
     }
 
     // Particles
