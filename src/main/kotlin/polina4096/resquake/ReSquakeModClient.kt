@@ -18,7 +18,7 @@ object ReSquakeModClient : ClientModInitializer {
     override fun onInitializeClient() {
         ClientTickEvents.END_CLIENT_TICK.register(ClientTickEvents.EndTick { client: MinecraftClient ->
             if (client.player != null)
-                ReSquakePlayer.isJumping = client.player!!.input.jumping
+                ReSquakePlayer.jumping = client.player!!.input.jumping
 
             while (keyBinding.wasPressed()) {
                 ReSquakeMod.config.quakeMovementEnabled = !ReSquakeMod.config.quakeMovementEnabled
@@ -31,7 +31,7 @@ object ReSquakeModClient : ClientModInitializer {
         val mc = MinecraftClient.getInstance()
         HudRenderCallback.EVENT.register { matrices: MatrixStack, tickDelta: Float ->
             val speed = ReSquakePlayer.currentSpeed * 20
-            if (!ReSquakeMod.config.speedDeltaIndicatorEnabled || !ReSquakePlayer.isJumping || ReSquakePlayer.isSwimming || speed < ReSquakeMod.config.speedDeltaThreshold)
+            if (!ReSquakeMod.config.speedDeltaIndicatorEnabled || !ReSquakePlayer.jumping || ReSquakePlayer.swimming || speed < ReSquakeMod.config.speedDeltaThreshold)
                 return@register
 
             val posX = mc.window.scaledWidth  / 2.0f
