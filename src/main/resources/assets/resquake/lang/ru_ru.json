@@ -1,0 +1,7 @@
+{
+  "category.resquake": "re:squake",
+  "key.resquake.toggle": "Включить/выключить re:squake",
+  "key.resquake.config": "Меню настройки re:squake",
+  "resquake.enabled": "re:squake включен",
+  "resquake.disabled": "re:squake выключен"
+}
