@@ -46,16 +46,16 @@ class ModMenuIntegration : ModMenuApi {
                             { ReSquakeMod.config.trimpingEnabled = it })
                         .controller(::BooleanController)
                         .build())
-                    .build())
 
-                .option(Option.createBuilder(Boolean::class.javaPrimitiveType)
-                    .name(Text.of("Sharking"))
-                    .tooltip(Text.of("Enables/disables sharking (water glide)"))
-                    .binding(ReSquakeConfig.DEFAULT_SHARKING_ENABLED,
-                        { ReSquakeMod.config.sharkingEnabled },
-                        { ReSquakeMod.config.sharkingEnabled = it })
-                    .controller(::BooleanController)
-                    .build())
+                    .option(Option.createBuilder(Boolean::class.javaPrimitiveType)
+                        .name(Text.of("Sharking"))
+                        .tooltip(Text.of("Enables/disables sharking (water glide)"))
+                        .binding(ReSquakeConfig.DEFAULT_SHARKING_ENABLED,
+                            { ReSquakeMod.config.sharkingEnabled },
+                            { ReSquakeMod.config.sharkingEnabled = it })
+                        .controller(::BooleanController)
+                        .build())
+                .build())
 
                 .group(OptionGroup.createBuilder()
                     .name(Text.of("Miscellaneous"))
