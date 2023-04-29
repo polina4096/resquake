@@ -2,8 +2,20 @@
 <img src="src/main/resources/assets/resquake/icon.png">
 <br>re:squake
 </h1>
+ 
+Kotlin rewrite of the popular mod which adds quake-style movement to minecraft using the fabric mod loader (should be compatible with quilt). Requires [Fabric Language Kotlin](https://modrinth.com/mod/fabric-language-kotlin), depends on [YetAnotherConfigLib](https://modrinth.com/mod/yacl), [Fabric API](https://modrinth.com/mod/fabric-api) and optionally [Mod Menu](https://modrinth.com/mod/modmenu).
 
-Kotlin rewrite of the popular mod which adds quake-style movement to minecraft using the fabric mod loader (should be compatible with quilt). May or may not contain additional features, depends on [YetAnotherConfigLib](https://modrinth.com/mod/yacl) and optionally [Mod Menu](https://modrinth.com/mod/modmenu).
+This mod works fine if installed only on the client, but in order to prevent fall damage from slowing down the player it must be installed on the server too. Players can toggle the mod individually in the settings, or using the keybind.
+
+### Features
+- quake-style movement
+- bunnyhop
+- trimping
+- sharking
+- basic speed indicator
+- in-game config
+- adjustable values
+- keybind to toggle the mod
 
 ### Build Instructions
 1. Clone the git repository
