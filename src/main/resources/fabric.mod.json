@@ -42,14 +42,14 @@
 		"resquake.mixins.json"
 	],
 	"depends": {
-		"fabricloader": ">=0.14.19",
-		"minecraft": "~1.19.4",
+		"fabricloader": ">=0.14.21",
+		"minecraft": "~1.20",
 		"java": ">=17",
 		"fabric-api": "*",
-		"fabric-language-kotlin": ">=1.8.20",
-		"yet-another-config-lib": ">=2.4"
+		"fabric-language-kotlin": ">=1.8.22",
+		"yet_another_config_lib_v3": ">=3.0.1"
 	},
 	"suggests": {
-		"modmenu": ">=6.1.0-rc.4"
+		"modmenu": ">=7.0.1"
 	}
 }

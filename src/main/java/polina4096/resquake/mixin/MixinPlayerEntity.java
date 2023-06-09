@@ -45,14 +45,14 @@ public abstract class MixinPlayerEntity extends LivingEntity {
 	@Inject(at = @At("HEAD"), method = "handleFallDamage")
 	private void beforeFall(float fallDistance, float damageMultiplier, DamageSource damageSource, CallbackInfoReturnable<Boolean> cir)
 	{
-		if (!this.world.isClient)
+		if (!this.getWorld().isClient)
 			velocityChanged = this.velocityModified;
 	}
 
 	@Inject(method = "handleFallDamage", at = @At("RETURN"), slice = @Slice(from = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;increaseStat(Lnet/minecraft/util/Identifier;I)V"), to = @At("TAIL")))
 	private void afterFall(float fallDistance, float damageMultiplier, DamageSource damageSource, CallbackInfoReturnable<Boolean> cir)
 	{
-		if (!this.world.isClient)
+		if (!this.getWorld().isClient)
 			this.velocityModified = velocityChanged;
 	}
 }

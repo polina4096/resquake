@@ -5,12 +5,15 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback
 import net.minecraft.client.MinecraftClient
+import net.minecraft.client.font.TextRenderer
+import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.option.KeyBinding
 import net.minecraft.client.util.InputUtil
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.text.Text
 import org.lwjgl.glfw.GLFW
 import polina4096.resquake.integration.ModMenuIntegration
+import kotlin.math.roundToInt
 
 
 object ReSquakeModClient : ClientModInitializer {
@@ -35,7 +38,7 @@ object ReSquakeModClient : ClientModInitializer {
         })
 
         val mc = MinecraftClient.getInstance()
-        HudRenderCallback.EVENT.register { matrices: MatrixStack, tickDelta: Float ->
+        HudRenderCallback.EVENT.register { ctx: DrawContext, _: Float ->
             val speed = ReSquakePlayer.currentSpeed * 20
             if (!ReSquakeMod.config.speedDeltaIndicatorEnabled || !ReSquakePlayer.jumping || ReSquakePlayer.swimming || speed < ReSquakeMod.config.speedDeltaThreshold)
                 return@register
@@ -52,7 +55,7 @@ object ReSquakeModClient : ClientModInitializer {
                 else -> ReSquakeMod.config.speedUnchangedColor
             }
 
-            mc.textRenderer.drawWithShadow(matrices, text, posX - centerOffset, posY + 15, color)
+            ctx.drawTextWithShadow(mc.textRenderer, text, (posX - centerOffset).roundToInt(), (posY + 15).roundToInt(), color)
         }
     }
 }
