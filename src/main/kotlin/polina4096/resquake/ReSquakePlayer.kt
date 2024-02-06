@@ -1,6 +1,8 @@
 package polina4096.resquake
 
 import net.minecraft.block.BlockRenderType
+import net.minecraft.block.Blocks
+import net.minecraft.block.PowderSnowBlock
 import net.minecraft.entity.Entity
 import net.minecraft.entity.Flutterer
 import net.minecraft.entity.MovementType
@@ -8,13 +10,11 @@ import net.minecraft.entity.effect.StatusEffects
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.particle.BlockStateParticleEffect
 import net.minecraft.particle.ParticleTypes
+import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.ChunkSectionPos
 import net.minecraft.util.math.Vec3d
-import kotlin.math.cos
-import kotlin.math.floor
-import kotlin.math.sin
-import kotlin.math.sqrt
+import kotlin.math.*
 
 
 object ReSquakePlayer {
@@ -78,11 +78,28 @@ object ReSquakePlayer {
             ||   player.vehicle != null)
             return false
 
-        val dX = player.x
-        val dY = player.y
-        val dZ = player.z
+        val preX = player.x
+        val preY = player.y
+        val preZ = player.z
         if (player.travelQuake(movementInput.x, movementInput.z)) {
-            player.increaseTravelMotionStats(player.x - dX, player.y - dY, player.z - dZ)
+            val distance =
+               ((player.x - preX).pow(2) +
+                (player.y - preY).pow(2) +
+                (player.z - preZ).pow(2)).pow(1.0 / 2.0)
+
+            val flying = (player.abilities.flying || player.isFallFlying)
+
+            // Apparently stats are stored with 2-digit fixed point precision
+            if (player is ServerPlayerEntity) {
+                if (player.isTouchingWater && !flying) {
+                    println((distance * 100.0).roundToInt())
+                    player.increaseStat(ReSquakeStats.SHARK_ONE_CM, (distance * 100.0).roundToInt())
+                } else {
+                    println((distance * 100.0).roundToInt())
+                    player.increaseStat(ReSquakeStats.BHOP_ONE_CM, (distance * 100.0).roundToInt())
+                }
+            }
+
 
             // Swing arms and legs
             player.updateLimbs(player is Flutterer)
@@ -218,6 +235,13 @@ object ReSquakePlayer {
         var yVel = this.velocity.y
         var gravity = -0.08 // gravity
 
+        // Powdered snow
+        if ((this.horizontalCollision || jumping)
+        && (this.isClimbing || blockStateAtPos.isOf(Blocks.POWDER_SNOW)
+        && PowderSnowBlock.canWalkOnPowderSnow(this))) {
+            yVel += 0.2
+        }
+
         // Slow falling
         if (velocity.y <= 0.0 && hasStatusEffect(StatusEffects.SLOW_FALLING)) {
             gravity = -0.01
@@ -327,6 +351,10 @@ object ReSquakePlayer {
     // Trimping
     private fun PlayerEntity.trimp(): Boolean {
         if (ReSquakeMod.config.trimpingEnabled && this.isSneaking) {
+            if (this is ServerPlayerEntity) {
+                this.increaseStat(ReSquakeStats.TRIMPS, 1)
+            }
+
             val speed = this.getSpeed()
             val maxBaseSpeed = this.getBaseSpeedMax()
 

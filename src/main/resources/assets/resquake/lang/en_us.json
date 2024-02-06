@@ -3,5 +3,8 @@
   "key.resquake.toggle": "Toggle re:squake",
   "key.resquake.config": "Open re:squake config",
   "resquake.enabled": "re:squake enabled",
-  "resquake.disabled": "re:squake disabled"
+  "resquake.disabled": "re:squake disabled",
+  "stat.resquake.trimps": "Trimps",
+  "stat.resquake.bhop_one_cm": "Distance Bunny-Hopped",
+  "stat.resquake.shark_one_cm": "Distance by Sharking"
 }

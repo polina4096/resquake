@@ -3,5 +3,8 @@
   "key.resquake.toggle": "Включить/выключить re:squake",
   "key.resquake.config": "Меню настройки re:squake",
   "resquake.enabled": "re:squake включен",
-  "resquake.disabled": "re:squake выключен"
+  "resquake.disabled": "re:squake выключен",
+  "stat.resquake.trimps": "Тримпов",
+  "stat.resquake.bhop_one_cm": "Преодолено баннихопом",
+  "stat.resquake.shark_one_cm": "Преодолено шаркингом"
 }

@@ -25,11 +25,11 @@ dependencies {
 
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	modImplementation "net.fabricmc:fabric-language-kotlin:${project.fabric_kotlin_version}"
-	modImplementation "dev.isxander.yacl:yet-another-config-lib-fabric:3.0.1+1.20"
-	modCompileOnly "com.terraformersmc:modmenu:7.0.1"
+	modImplementation "dev.isxander.yacl:yet-another-config-lib-fabric:3.3.2+1.20.4"
+	modCompileOnly "com.terraformersmc:modmenu:9.0.0"
 
-	modRuntimeOnly "dev.isxander.yacl:yet-another-config-lib-fabric:3.0.1+1.20"
-	modRuntimeOnly "com.terraformersmc:modmenu:7.0.1"
+	modRuntimeOnly "dev.isxander.yacl:yet-another-config-lib-fabric:3.3.2+1.20.4"
+	modRuntimeOnly "com.terraformersmc:modmenu:9.0.0"
 }
 
 processResources {
