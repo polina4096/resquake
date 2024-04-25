@@ -40,12 +40,14 @@ object ReSquakeModClient : ClientModInitializer {
         val mc = MinecraftClient.getInstance()
         HudRenderCallback.EVENT.register { ctx: DrawContext, _: Float ->
             val speed = ReSquakePlayer.currentSpeed * 20
+            val speedDifference = speed - (ReSquakePlayer.previousSpeed * 20)
             if (!ReSquakeMod.config.speedDeltaIndicatorEnabled || !ReSquakePlayer.jumping || ReSquakePlayer.swimming || speed < ReSquakeMod.config.speedDeltaThreshold)
                 return@register
 
             val posX = mc.window.scaledWidth  / 2.0f
             val posY = mc.window.scaledHeight / 2.0f
             val text = "%.2f".format(speed)
+
             val centerOffset = mc.textRenderer.getWidth(text) / 2.0f
 
             val delta = ReSquakePlayer.currentSpeed.compareTo(ReSquakePlayer.previousSpeed)
@@ -56,6 +58,10 @@ object ReSquakeModClient : ClientModInitializer {
             }
 
             ctx.drawTextWithShadow(mc.textRenderer, text, (posX - centerOffset).roundToInt(), (posY + 15).roundToInt(), color)
+            if (ReSquakeMod.config.speedDiffIndicatorEnabled) {
+                val differenceText = "%.2f".format(speedDifference)
+                ctx.drawTextWithShadow(mc.textRenderer, differenceText, (posX - centerOffset).roundToInt(), (posY + 25).roundToInt(), color)
+            }
         }
     }
 }

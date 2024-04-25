@@ -26,6 +26,7 @@ class ReSquakeConfig(@Transient var path: Path? = null) {
 
     // Speed indicator
     var speedDeltaIndicatorEnabled : Boolean = DEFAULT_SPEED_DELTA_INDICATOR_ENABLED
+    var speedDiffIndicatorEnabled  : Boolean = DEFAULT_SPEED_DIFF_INDICATOR_ENABLED
     var speedDeltaThreshold        : Double  = DEFAULT_SPEED_DELTA_THRESHOLD
     var speedGainColor             : Int     = SPEED_GAIN_COLOR      . rgb
     var speedLossColor             : Int     = SPEED_LOSS_COLOR      . rgb
@@ -65,6 +66,7 @@ class ReSquakeConfig(@Transient var path: Path? = null) {
 
         // Speed indicator
         const val DEFAULT_SPEED_DELTA_INDICATOR_ENABLED = true
+        const val DEFAULT_SPEED_DIFF_INDICATOR_ENABLED  = true
         const val DEFAULT_SPEED_DELTA_THRESHOLD         = 6.0
       /* s */ val SPEED_GAIN_COLOR                      = Color(0xFF_00FF00.toInt())
       /* a */ val SPEED_LOSS_COLOR                      = Color(0xFF_FF0000.toInt())

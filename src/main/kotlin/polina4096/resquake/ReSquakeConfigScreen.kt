@@ -102,6 +102,16 @@ fun generateConfigScreen(parent: Screen?): Screen
                     .build())
 
                 .option(
+                    Option.createBuilder<Boolean>()
+                    .name(Text.of("Difference indicator"))
+                    .description(OptionDescription.of(Text.of("Enables/disables the display of +/- speed from last hop")))
+                    .binding(ReSquakeConfig.DEFAULT_SPEED_DIFF_INDICATOR_ENABLED,
+                             { ReSquakeMod.config.speedDiffIndicatorEnabled },
+                             { ReSquakeMod.config.speedDiffIndicatorEnabled = it })
+                    .controller(BooleanControllerBuilder::create)
+                    .build())
+
+                .option(
                     Option.createBuilder<Double>()
                     .name(Text.of("Speed delta threshold"))
                     .description(OptionDescription.of(Text.of("Minimum speed needed for indicator to appear")))
