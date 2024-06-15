@@ -14,6 +14,7 @@ import net.minecraft.text.Text
 import org.lwjgl.glfw.GLFW
 import polina4096.resquake.integration.ModMenuIntegration
 import kotlin.math.roundToInt
+import net.minecraft.client.render.RenderTickCounter
 
 
 object ReSquakeModClient : ClientModInitializer {
@@ -38,7 +39,7 @@ object ReSquakeModClient : ClientModInitializer {
         })
 
         val mc = MinecraftClient.getInstance()
-        HudRenderCallback.EVENT.register { ctx: DrawContext, _: Float ->
+        HudRenderCallback.EVENT.register { ctx: DrawContext, _: RenderTickCounter ->
             val speed = ReSquakePlayer.currentSpeed * 20
             val speedDifference = speed - (ReSquakePlayer.previousSpeed * 20)
             if (!ReSquakeMod.config.speedDeltaIndicatorEnabled || !ReSquakePlayer.jumping || ReSquakePlayer.swimming || speed < ReSquakeMod.config.speedDeltaThreshold)
