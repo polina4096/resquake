@@ -1,3 +1,6 @@
+Updated for MC 1.21
+Using Gradle 8.8
+
 <h1 align="center">
 <img src="src/main/resources/assets/resquake/icon.png">
 <br>re:squake
