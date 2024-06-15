@@ -1,3 +1,7 @@
+Updated for Minecraft 1.21 on Java 21
+
+Compiled with Gradle 8.8
+
 <h1 align="center">
 <img src="src/main/resources/assets/resquake/icon.png">
 <br>re:squake
