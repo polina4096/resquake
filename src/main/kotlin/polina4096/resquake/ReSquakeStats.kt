@@ -21,6 +21,5 @@ object ReSquakeStats {
   private fun registerStat(key: Identifier, id: String, formatter: StatFormatter) {
     Registry.register(Registries.CUSTOM_STAT, id, key)
     Stats.CUSTOM.getOrCreateStat(key, formatter)
-
   }
 }

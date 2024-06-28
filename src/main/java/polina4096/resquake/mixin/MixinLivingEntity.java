@@ -11,12 +11,12 @@ import polina4096.resquake.ReSquakeMod;
 
 @Mixin(LivingEntity.class)
 public abstract class MixinLivingEntity {
-    @Shadow private int jumpingCooldown;
+  @Shadow private int jumpingCooldown;
 
-    @Inject(method = "tickMovement", at = @At(value = "HEAD"))
-    public void tickMovement(CallbackInfo ci) {
-        if (ReSquakeMod.config.getNoJumpCooldown()) {
-            jumpingCooldown = 0;
-        }
+  @Inject(method = "tickMovement", at = @At(value = "HEAD"))
+  public void tickMovement(CallbackInfo ci) {
+    if (ReSquakeMod.config.getNoJumpCooldown()) {
+      jumpingCooldown = 0;
     }
+  }
 }
