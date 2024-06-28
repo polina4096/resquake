@@ -7,9 +7,9 @@ import net.minecraft.stat.Stats
 import net.minecraft.util.Identifier
 
 object ReSquakeStats {
-  val BHOP_ONE_CM = Identifier(ReSquakeMod.ID, "bhop_one_cm")
-  val SHARK_ONE_CM = Identifier(ReSquakeMod.ID, "shark_one_cm")
-  val TRIMPS = Identifier(ReSquakeMod.ID, "trimps")
+  val BHOP_ONE_CM = Identifier.of(ReSquakeMod.ID, "bhop_one_cm")
+  val SHARK_ONE_CM = Identifier.of(ReSquakeMod.ID, "shark_one_cm")
+  val TRIMPS = Identifier.of(ReSquakeMod.ID, "trimps")
 
   fun register() {
     // Apparently, stats don't work. I will fix them one day.

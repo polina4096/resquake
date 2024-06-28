@@ -1,8 +1,8 @@
 plugins {
 	id 'fabric-loom' version '1.6-SNAPSHOT'
 	id 'maven-publish'
-	id "org.jetbrains.kotlin.jvm" version "1.8.20"
-	id 'org.jetbrains.kotlin.plugin.serialization' version '1.8.20'
+	id "org.jetbrains.kotlin.jvm" version "1.9.20-Beta2"
+	id 'org.jetbrains.kotlin.plugin.serialization' version '1.9.20-Beta2'
 }
 
 sourceCompatibility = JavaVersion.VERSION_21
@@ -25,11 +25,11 @@ dependencies {
 
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	modImplementation "net.fabricmc:fabric-language-kotlin:${project.fabric_kotlin_version}"
-	modImplementation "dev.isxander.yacl:yet-another-config-lib-fabric:3.3.2+1.20.4"
-	modCompileOnly "com.terraformersmc:modmenu:9.0.0"
+	modImplementation "dev.isxander:yet-another-config-lib:3.5.0+1.21-fabric"
+	modCompileOnly "com.terraformersmc:modmenu:11.0.1"
 
-	modRuntimeOnly "dev.isxander.yacl:yet-another-config-lib-fabric:3.3.2+1.20.4"
-	modRuntimeOnly "com.terraformersmc:modmenu:9.0.0"
+	modRuntimeOnly "dev.isxander:yet-another-config-lib:3.5.0+1.21-fabric"
+	modRuntimeOnly "com.terraformersmc:modmenu:11.0.1"
 }
 
 processResources {
@@ -46,7 +46,7 @@ tasks.withType(JavaCompile).configureEach {
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 	kotlinOptions {
-		jvmTarget = 17
+		jvmTarget = 21
 	}
 }
 
