@@ -37,6 +37,7 @@ object ReSquakePlayer {
 
         if (player !is PlayerEntity) return false // We are only interested in players
         if (!player.world.isClient)  return false // And only in the client player
+        if (player.isCrawling) return false // Figure out a better solution later
 
         // And only on land
         if((player.abilities.flying && player.vehicle == null) || player.isTouchingWater || player.isInLava || player.isClimbing)
