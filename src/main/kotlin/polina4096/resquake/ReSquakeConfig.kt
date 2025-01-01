@@ -1,8 +1,9 @@
 package polina4096.resquake
 
-import kotlinx.serialization.*
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import kotlinx.serialization.json.*
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.awt.Color
 import java.nio.file.Files
 import java.nio.file.Path
@@ -13,6 +14,7 @@ private val json = Json { prettyPrint = true }
 
 @Serializable
 class ReSquakeConfig(@Transient var path: Path? = null) {
+  // @formatter:off
   /* General */
   // Movement
   var quakeMovementEnabled       : Boolean = DEFAULT_QUAKE_MOVEMENT_ENABLED
@@ -47,12 +49,14 @@ class ReSquakeConfig(@Transient var path: Path? = null) {
   // Sharking
   var sharkingFriction       : Double = DEFAULT_SHARKING_FRICTION
   var sharkingSurfaceTension : Double = DEFAULT_SHARKING_SURFACE_TENSION
+  // @formatter:on
 
   fun save() {
     path!!.writeText(json.encodeToString(this))
   }
 
   companion object {
+    // @formatter:off
     /* General */
     // Movement
     const val DEFAULT_QUAKE_MOVEMENT_ENABLED        = true
@@ -71,6 +75,7 @@ class ReSquakeConfig(@Transient var path: Path? = null) {
   /* s */ val SPEED_GAIN_COLOR                      = Color(0xFF_00FF00.toInt())
   /* a */ val SPEED_LOSS_COLOR                      = Color(0xFF_FF0000.toInt())
   /* d */ val SPEED_UNCHANGED_COLOR                 = Color(0xFF_FFFFFF.toInt())
+  // Apparently no const colors :(
 
     /* Movement constants */
     // Bunnyhop
@@ -87,6 +92,7 @@ class ReSquakeConfig(@Transient var path: Path? = null) {
     // Sharking
     const val DEFAULT_SHARKING_FRICTION        =   0.995
     const val DEFAULT_SHARKING_SURFACE_TENSION =   0.800
+    // @formatter:on
 
     fun load(path: Path): ReSquakeConfig {
       if (!path.exists()) return ReSquakeConfig(path)

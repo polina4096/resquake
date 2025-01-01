@@ -5,12 +5,11 @@ import dev.isxander.yacl3.api.controller.BooleanControllerBuilder
 import dev.isxander.yacl3.api.controller.ColorControllerBuilder
 import dev.isxander.yacl3.api.controller.DoubleFieldControllerBuilder
 import dev.isxander.yacl3.api.controller.IntegerFieldControllerBuilder
-import net.minecraft.text.Text
 import net.minecraft.client.gui.screen.Screen
+import net.minecraft.text.Text
 import java.awt.Color
 
-fun generateConfigScreen(parent: Screen?): Screen
-    = YetAnotherConfigLib.createBuilder()
+fun generateConfigScreen(parent: Screen?): Screen = YetAnotherConfigLib.createBuilder()
   .save(ReSquakeMod.config::save)
   .title(Text.of(ReSquakeMod.NAME))
   .category(
@@ -29,7 +28,8 @@ fun generateConfigScreen(parent: Screen?): Screen
                 { ReSquakeMod.config.quakeMovementEnabled },
                 { ReSquakeMod.config.quakeMovementEnabled = it })
               .controller(BooleanControllerBuilder::create)
-              .build())
+              .build()
+          )
 
           .option(
             Option.createBuilder<Boolean>()
@@ -39,7 +39,8 @@ fun generateConfigScreen(parent: Screen?): Screen
                 { ReSquakeMod.config.trimpingEnabled },
                 { ReSquakeMod.config.trimpingEnabled = it })
               .controller(BooleanControllerBuilder::create)
-              .build())
+              .build()
+          )
 
           .option(
             Option.createBuilder<Boolean>()
@@ -49,8 +50,10 @@ fun generateConfigScreen(parent: Screen?): Screen
                 { ReSquakeMod.config.sharkingEnabled },
                 { ReSquakeMod.config.sharkingEnabled = it })
               .controller(BooleanControllerBuilder::create)
-              .build())
-          .build())
+              .build()
+          )
+          .build()
+      )
 
       .group(
         OptionGroup.createBuilder()
@@ -64,7 +67,8 @@ fun generateConfigScreen(parent: Screen?): Screen
                 { ReSquakeMod.config.uncappedBunnyhop },
                 { ReSquakeMod.config.uncappedBunnyhop = it })
               .controller(BooleanControllerBuilder::create)
-              .build())
+              .build()
+          )
 
           .option(
             Option.createBuilder<Boolean>()
@@ -74,7 +78,8 @@ fun generateConfigScreen(parent: Screen?): Screen
                 { ReSquakeMod.config.noJumpCooldown },
                 { ReSquakeMod.config.noJumpCooldown = it })
               .controller(BooleanControllerBuilder::create)
-              .build())
+              .build()
+          )
 
           .option(
             Option.createBuilder<Int>()
@@ -84,8 +89,10 @@ fun generateConfigScreen(parent: Screen?): Screen
                 { ReSquakeMod.config.jumpParticles },
                 { ReSquakeMod.config.jumpParticles = it })
               .controller(IntegerFieldControllerBuilder::create)
-              .build())
-          .build())
+              .build()
+          )
+          .build()
+      )
 
       .group(
         OptionGroup.createBuilder()
@@ -99,7 +106,8 @@ fun generateConfigScreen(parent: Screen?): Screen
                 { ReSquakeMod.config.speedDeltaIndicatorEnabled },
                 { ReSquakeMod.config.speedDeltaIndicatorEnabled = it })
               .controller(BooleanControllerBuilder::create)
-              .build())
+              .build()
+          )
 
           .option(
             Option.createBuilder<Boolean>()
@@ -109,7 +117,8 @@ fun generateConfigScreen(parent: Screen?): Screen
                 { ReSquakeMod.config.speedDiffIndicatorEnabled },
                 { ReSquakeMod.config.speedDiffIndicatorEnabled = it })
               .controller(BooleanControllerBuilder::create)
-              .build())
+              .build()
+          )
 
           .option(
             Option.createBuilder<Double>()
@@ -119,7 +128,8 @@ fun generateConfigScreen(parent: Screen?): Screen
                 { ReSquakeMod.config.speedDeltaThreshold },
                 { ReSquakeMod.config.speedDeltaThreshold = it })
               .controller(DoubleFieldControllerBuilder::create)
-              .build())
+              .build()
+          )
 
           .option(
             Option.createBuilder<Color>()
@@ -129,7 +139,8 @@ fun generateConfigScreen(parent: Screen?): Screen
                 { Color(ReSquakeMod.config.speedGainColor) },
                 { ReSquakeMod.config.speedGainColor = it.rgb })
               .controller(ColorControllerBuilder::create)
-              .build())
+              .build()
+          )
 
           .option(
             Option.createBuilder<Color>()
@@ -139,7 +150,8 @@ fun generateConfigScreen(parent: Screen?): Screen
                 { Color(ReSquakeMod.config.speedLossColor) },
                 { ReSquakeMod.config.speedLossColor = it.rgb })
               .controller(ColorControllerBuilder::create)
-              .build())
+              .build()
+          )
 
           .option(
             Option.createBuilder<Color>()
@@ -149,9 +161,12 @@ fun generateConfigScreen(parent: Screen?): Screen
                 { Color(ReSquakeMod.config.speedUnchangedColor) },
                 { ReSquakeMod.config.speedUnchangedColor = it.rgb })
               .controller(ColorControllerBuilder::create)
-              .build())
-          .build())
-      .build())
+              .build()
+          )
+          .build()
+      )
+      .build()
+  )
 
   .category(
     ConfigCategory.createBuilder()
@@ -169,7 +184,8 @@ fun generateConfigScreen(parent: Screen?): Screen
                 { ReSquakeMod.config.softCapThreshold },
                 { ReSquakeMod.config.softCapThreshold = it })
               .controller(DoubleFieldControllerBuilder::create)
-              .build())
+              .build()
+          )
 
           .option(
             Option.createBuilder<Double>()
@@ -179,7 +195,8 @@ fun generateConfigScreen(parent: Screen?): Screen
                 { ReSquakeMod.config.hardCapThreshold },
                 { ReSquakeMod.config.hardCapThreshold = it })
               .controller(DoubleFieldControllerBuilder::create)
-              .build())
+              .build()
+          )
 
           .option(
             Option.createBuilder<Double>()
@@ -189,7 +206,8 @@ fun generateConfigScreen(parent: Screen?): Screen
                 { ReSquakeMod.config.acceleration },
                 { ReSquakeMod.config.acceleration = it })
               .controller(DoubleFieldControllerBuilder::create)
-              .build())
+              .build()
+          )
 
           .option(
             Option.createBuilder<Double>()
@@ -199,7 +217,8 @@ fun generateConfigScreen(parent: Screen?): Screen
                 { ReSquakeMod.config.airAcceleration },
                 { ReSquakeMod.config.airAcceleration = it })
               .controller(DoubleFieldControllerBuilder::create)
-              .build())
+              .build()
+          )
 
           .option(
             Option.createBuilder<Double>()
@@ -209,7 +228,8 @@ fun generateConfigScreen(parent: Screen?): Screen
                 { ReSquakeMod.config.maxAAccPerTick },
                 { ReSquakeMod.config.maxAAccPerTick = it })
               .controller(DoubleFieldControllerBuilder::create)
-              .build())
+              .build()
+          )
 
           .option(
             Option.createBuilder<Double>()
@@ -219,8 +239,10 @@ fun generateConfigScreen(parent: Screen?): Screen
                 { ReSquakeMod.config.softCapDegen },
                 { ReSquakeMod.config.softCapDegen = it })
               .controller(DoubleFieldControllerBuilder::create)
-              .build())
-          .build())
+              .build()
+          )
+          .build()
+      )
 
       .group(
         OptionGroup.createBuilder()
@@ -234,8 +256,10 @@ fun generateConfigScreen(parent: Screen?): Screen
                 { ReSquakeMod.config.trimpMultiplier },
                 { ReSquakeMod.config.trimpMultiplier = it })
               .controller(DoubleFieldControllerBuilder::create)
-              .build())
-          .build())
+              .build()
+          )
+          .build()
+      )
 
       .group(
         OptionGroup.createBuilder()
@@ -248,7 +272,8 @@ fun generateConfigScreen(parent: Screen?): Screen
                 { ReSquakeMod.config.sharkingSurfaceTension },
                 { ReSquakeMod.config.sharkingSurfaceTension = it })
               .controller(DoubleFieldControllerBuilder::create)
-              .build())
+              .build()
+          )
 
           .option(
             Option.createBuilder<Double>()
@@ -257,8 +282,11 @@ fun generateConfigScreen(parent: Screen?): Screen
                 { ReSquakeMod.config.sharkingFriction },
                 { ReSquakeMod.config.sharkingFriction = it })
               .controller(DoubleFieldControllerBuilder::create)
-              .build())
-          .build())
-      .build())
+              .build()
+          )
+          .build()
+      )
+      .build()
+  )
   .build()
   .generateScreen(parent)

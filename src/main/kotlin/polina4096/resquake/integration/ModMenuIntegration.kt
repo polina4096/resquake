@@ -8,6 +8,5 @@ import polina4096.resquake.generateConfigScreen
 
 @Environment(EnvType.CLIENT)
 class ModMenuIntegration : ModMenuApi {
-  override fun getModConfigScreenFactory()
-    = ConfigScreenFactory { generateConfigScreen(it) }
+  override fun getModConfigScreenFactory() = ConfigScreenFactory { generateConfigScreen(it) }
 }

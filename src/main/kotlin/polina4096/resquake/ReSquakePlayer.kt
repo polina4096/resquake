@@ -20,14 +20,14 @@ import kotlin.math.*
 object ReSquakePlayer {
   private var baseVelocities = mutableListOf<Pair<Double, Double>>()
 
-  var previousSpeed : Double  = 0.0
-  var currentSpeed  : Double  = 0.0
-  var jumping       : Boolean = false
-  var swimming      : Boolean = false
+  var previousSpeed: Double = 0.0
+  var currentSpeed: Double = 0.0
+  var jumping: Boolean = false
+  var swimming: Boolean = false
 
   private fun collectSpeed(speed: Double) {
     previousSpeed = currentSpeed
-    currentSpeed  = speed
+    currentSpeed = speed
   }
 
   // API
@@ -36,11 +36,11 @@ object ReSquakePlayer {
     if (!ReSquakeMod.config.quakeMovementEnabled) return false
 
     if (player !is PlayerEntity) return false // We are only interested in players
-    if (!player.world.isClient)  return false // And only in the client player
+    if (!player.world.isClient) return false // And only in the client player
     if (player.isCrawling) return false // Figure out a better solution later
 
     // And only on land
-    if((player.abilities.flying && player.vehicle == null) || player.isTouchingWater || player.isInLava || player.isClimbing)
+    if ((player.abilities.flying && player.vehicle == null) || player.isTouchingWater || player.isInLava || player.isClimbing)
       return false
 
     val wishspeed = speed.toDouble() * 2.15
@@ -50,6 +50,7 @@ object ReSquakePlayer {
 
     return true
   }
+
   fun afterJump(player: PlayerEntity) {
     if (player.world.isClient && ReSquakeMod.config.quakeMovementEnabled) {
       if (player.isSprinting) {
@@ -71,36 +72,35 @@ object ReSquakePlayer {
       player.spawnBunnyhopParticles(ReSquakeMod.config.jumpParticles)
     }
   }
+
   fun travel(player: PlayerEntity, movementInput: Vec3d): Boolean {
     if (!ReSquakeMod.config.quakeMovementEnabled
-      ||  !player.world.isClient
-      ||   player.abilities.flying
-      ||   player.isFallFlying
-      ||   player.vehicle != null)
+      || !player.world.isClient
+      || player.abilities.flying
+      || player.isFallFlying
+      || player.vehicle != null
+    )
       return false
 
     val preX = player.x
     val preY = player.y
     val preZ = player.z
     if (player.travelQuake(movementInput.x, movementInput.z)) {
-      val distance =
-        ((player.x - preX).pow(2) +
-            (player.y - preY).pow(2) +
-            (player.z - preZ).pow(2)).pow(1.0 / 2.0)
+      val xPow = (player.x - preX).pow(2)
+      val yPow = (player.y - preY).pow(2)
+      val zPow = (player.z - preZ).pow(2)
+      val distance = (xPow + yPow + zPow).pow(1.0 / 2.0)
 
       val flying = (player.abilities.flying || player.isFallFlying)
 
       // Apparently stats are stored with 2-digit fixed point precision
       if (player is ServerPlayerEntity) {
         if (player.isTouchingWater && !flying) {
-          println((distance * 100.0).roundToInt())
           player.increaseStat(ReSquakeStats.SHARK_ONE_CM, (distance * 100.0).roundToInt())
         } else {
-          println((distance * 100.0).roundToInt())
           player.increaseStat(ReSquakeStats.BHOP_ONE_CM, (distance * 100.0).roundToInt())
         }
       }
-
 
       // Swing arms and legs
       player.updateLimbs(player is Flutterer)
@@ -110,6 +110,7 @@ object ReSquakePlayer {
     jumping = false
     return false
   }
+
   fun beforeTick(player: PlayerEntity) {
     if (player.world.isClient && baseVelocities.isNotEmpty())
       baseVelocities.clear()
@@ -122,16 +123,16 @@ object ReSquakePlayer {
       var speed = sqrt(preSpeed)
 
       speed = if (speed < 1.0) 1.0
-              else             1.0 / speed
+      else 1.0 / speed
 
-      val sidemove    = sidemoveInitial    * speed
+      val sidemove = sidemoveInitial * speed
       val forwardmove = forwardmoveInitial * speed
       val f1 = sin(this.yaw * Math.PI / 180.0)
       val f2 = cos(this.yaw * Math.PI / 180.0)
 
       return Pair(
-        (sidemove    * f2 - forwardmove * f1),
-        (forwardmove * f2 + sidemove    * f1),
+        (sidemove * f2 - forwardmove * f1),
+        (forwardmove * f2 + sidemove * f1),
       )
     }
 
@@ -148,14 +149,17 @@ object ReSquakePlayer {
 
     return 0.0
   }
+
   private fun PlayerEntity.getBaseSpeedCurrent(): Double {
     val baseSpeed = this.movementSpeed
     return if (!this.isSneaking) baseSpeed * QUAKE_MOVEMENT_SPEED_MULTIPLIER else baseSpeed * QUAKE_SNEAKING_SPEED_MULTIPLIER
   }
+
   private fun PlayerEntity.getBaseSpeedMax(): Double {
     val baseSpeed = this.movementSpeed
     return baseSpeed * QUAKE_MOVEMENT_SPEED_MULTIPLIER
   }
+
   private fun PlayerEntity.getSpeed(): Double {
     val x = this.velocity.x
     val z = this.velocity.z
@@ -176,10 +180,11 @@ object ReSquakePlayer {
 
     // Sharking
     if (this.isTouchingWater && !flying) {
-      if (ReSquakeMod.config.sharkingEnabled)
-        return this.travelWaterQuake(wishspeed, wishdir.first, wishdir.second, sidemove, forwardmove)
-      else return false // Use default minecraft water movement if disabled (https://github.com/polina4096/resquake/issues/4)
-    } else swimming = false
+      // Use default minecraft water movement if disabled (https://github.com/polina4096/resquake/issues/4)
+      return if (ReSquakeMod.config.sharkingEnabled) this.travelWaterQuake(wishspeed, wishdir.first, wishdir.second) else false
+    } else {
+      swimming = false
+    }
 
     // Ground movement
     if (onGroundForReal) {
@@ -200,7 +205,7 @@ object ReSquakePlayer {
 
         // add in base velocities
         for (baseVel in baseVelocities) {
-          x += baseVel.first  * speedMod
+          x += baseVel.first * speedMod
           z += baseVel.second * speedMod
         }
 
@@ -238,8 +243,9 @@ object ReSquakePlayer {
 
     // Powdered snow
     if ((this.horizontalCollision || jumping)
-    && (this.isClimbing || blockStateAtPos.isOf(Blocks.POWDER_SNOW)
-    && PowderSnowBlock.canWalkOnPowderSnow(this))) {
+      && (this.isClimbing || blockStateAtPos.isOf(Blocks.POWDER_SNOW)
+          && PowderSnowBlock.canWalkOnPowderSnow(this))
+    ) {
       yVel += 0.2
     }
 
@@ -262,9 +268,7 @@ object ReSquakePlayer {
 
       val airResistance = 0.9800000190734863
       this.velocity = Vec3d(this.velocity.x, yVel * airResistance, this.velocity.z)
-    }
-
-    else { // If chunk is not loaded slowly fall to bottomY
+    } else { // If chunk is not loaded slowly fall to bottomY
       yVel = if (this.y > world.bottomY.toDouble()) -0.1 else 0.0
       this.velocity = Vec3d(this.velocity.x, yVel, this.velocity.z)
     }
@@ -290,6 +294,7 @@ object ReSquakePlayer {
     val z = this.velocity.z + accelSpeed * wishZ
     this.velocity = Vec3d(x, this.velocity.y, z)
   }
+
   private fun PlayerEntity.airAccelerate(wishspeedInitial: Double, wishX: Double, wishZ: Double, accel: Double) {
     val maxAirAcceleration = ReSquakeMod.config.maxAAccPerTick
     val wishspeed = if (wishspeedInitial > maxAirAcceleration) maxAirAcceleration else wishspeedInitial
@@ -312,12 +317,13 @@ object ReSquakePlayer {
     val z = this.velocity.z + accelSpeed * wishZ
     this.velocity = Vec3d(x, this.velocity.y, z)
   }
+
   private fun PlayerEntity.applySoftCap(baseSpeed: Double, speed: Double) {
     var softCapPercent = ReSquakeMod.config.softCapThreshold
-    var softCapDegen   = ReSquakeMod.config.softCapDegen
+    var softCapDegen = ReSquakeMod.config.softCapDegen
     if (ReSquakeMod.config.uncappedBunnyhop) {
       softCapPercent = 1.0
-      softCapDegen   = 1.0
+      softCapDegen = 1.0
     }
 
     val softCap = baseSpeed * softCapPercent
@@ -334,6 +340,7 @@ object ReSquakePlayer {
       }
     }
   }
+
   private fun PlayerEntity.applyHardCap(baseSpeed: Double) {
     if (ReSquakeMod.config.uncappedBunnyhop) return
 
@@ -384,7 +391,7 @@ object ReSquakePlayer {
   }
 
   // Sharking
-  private fun PlayerEntity.travelWaterQuake(wishspeed: Double, wishX: Double, wishZ: Double, sidemove: Double, forwardmove: Double): Boolean {
+  private fun PlayerEntity.travelWaterQuake(wishspeed: Double, wishX: Double, wishZ: Double): Boolean {
     // Collect all relevant movement values
     val speed = this.getSpeed()
 
@@ -406,7 +413,7 @@ object ReSquakePlayer {
 
       // Accelerate
       if (speed > 0.098) this.airAccelerate(wishspeed, wishX, wishZ, ReSquakeMod.config.acceleration)
-                    else this.accelerate(wishspeed, wishX, wishZ, ReSquakeMod.config.acceleration, 1.0)
+      else this.accelerate(wishspeed, wishX, wishZ, ReSquakeMod.config.acceleration, 1.0)
 
       this.move(MovementType.SELF, this.velocity)
       this.velocity = Vec3d(velocity.x, if (velocity.y >= 0) velocity.y else 0.0, velocity.z)

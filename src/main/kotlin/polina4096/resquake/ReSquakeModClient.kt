@@ -30,8 +30,9 @@ object ReSquakeModClient : ClientModInitializer {
       while (keyToggle.wasPressed()) {
         ReSquakeMod.config.quakeMovementEnabled = !ReSquakeMod.config.quakeMovementEnabled
         if (ReSquakeMod.config.quakeMovementEnabled)
-             client.player?.sendMessage(Text.translatable("resquake.enabled"), true)
-        else client.player?.sendMessage(Text.translatable("resquake.disabled"), true)
+          client.player?.sendMessage(Text.translatable("resquake.enabled"), true)
+        else
+          client.player?.sendMessage(Text.translatable("resquake.disabled"), true)
       }
     })
 
@@ -42,7 +43,7 @@ object ReSquakeModClient : ClientModInitializer {
       if (!ReSquakeMod.config.speedDeltaIndicatorEnabled || !ReSquakePlayer.jumping || ReSquakePlayer.swimming || speed < ReSquakeMod.config.speedDeltaThreshold)
         return@register
 
-      val posX = mc.window.scaledWidth  / 2.0f
+      val posX = mc.window.scaledWidth / 2.0f
       val posY = mc.window.scaledHeight / 2.0f
       val text = "%.2f".format(speed)
 
