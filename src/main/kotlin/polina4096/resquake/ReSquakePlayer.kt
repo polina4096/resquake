@@ -52,30 +52,31 @@ object ReSquakePlayer {
   }
 
   fun afterJump(player: PlayerEntity) {
-    if (player.world.isClient && ReSquakeMod.config.quakeMovementEnabled) {
-      if (player.isSprinting) {
-        val f = player.yaw * 0.017453292f
-        val xVel = player.velocity.x + sin(f) * 0.2
-        val zVel = player.velocity.z - cos(f) * 0.2
-        player.velocity = Vec3d(xVel, player.velocity.y, zVel)
+    if (ReSquakeMod.config.quakeMovementEnabled) {
+      val maxMoveSpeed = player.getBaseSpeedMax()
+      if (player.world.isClient) {
+        if (player.isSprinting) {
+          val f = player.yaw * 0.017453292f
+          val xVel = player.velocity.x + sin(f) * 0.2
+          val zVel = player.velocity.z - cos(f) * 0.2
+          player.velocity = Vec3d(xVel, player.velocity.y, zVel)
+        }
+
+        // Update last recorded speed
+        val speed = player.getSpeed()
+        collectSpeed(speed)
+
+        player.applySoftCap(maxMoveSpeed, speed)
       }
 
-      // Update last recorded speed
-      val speed = player.getSpeed()
-      collectSpeed(speed)
-
-      val maxMoveSpeed = player.getBaseSpeedMax()
-      player.applySoftCap(maxMoveSpeed, speed)
-
-      val didTrimp = player.trimp()
+      val didTrimp = player.tryTrimp()
       if (!didTrimp) player.applyHardCap(maxMoveSpeed)
-      player.spawnBunnyhopParticles(ReSquakeMod.config.jumpParticles)
+      else player.spawnBunnyhopParticles(ReSquakeMod.config.jumpParticles)
     }
   }
 
   fun travel(player: PlayerEntity, movementInput: Vec3d): Boolean {
     if (!ReSquakeMod.config.quakeMovementEnabled
-      || !player.world.isClient
       || player.abilities.flying
       || player.isFallFlying
       || player.vehicle != null
@@ -94,7 +95,7 @@ object ReSquakePlayer {
       val flying = (player.abilities.flying || player.isFallFlying)
 
       // Apparently stats are stored with 2-digit fixed point precision
-      if (player is ServerPlayerEntity) {
+      if (player is ServerPlayerEntity && jumping && distance > 0.0) {
         if (player.isTouchingWater && !flying) {
           player.increaseStat(ReSquakeStats.SHARK_ONE_CM, (distance * 100.0).roundToInt())
         } else {
@@ -357,7 +358,7 @@ object ReSquakePlayer {
   }
 
   // Trimping
-  private fun PlayerEntity.trimp(): Boolean {
+  private fun PlayerEntity.tryTrimp(): Boolean {
     if (ReSquakeMod.config.trimpingEnabled && this.isSneaking) {
       if (this is ServerPlayerEntity) {
         this.increaseStat(ReSquakeStats.TRIMPS, 1)
