@@ -27,10 +27,10 @@ dependencies {
 
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     modImplementation "net.fabricmc:fabric-language-kotlin:${project.fabric_kotlin_version}"
-    modImplementation "dev.isxander:yet-another-config-lib:3.6.2+1.21.2-fabric"
+    modImplementation "dev.isxander:yet-another-config-lib:3.6.2+1.21.4-fabric"
     modCompileOnly "com.terraformersmc:modmenu:12.0.0"
 
-    modRuntimeOnly "dev.isxander:yet-another-config-lib:3.5.0+1.21-fabric"
+    modRuntimeOnly "dev.isxander:yet-another-config-lib:3.6.2+1.21.4-fabric"
     modRuntimeOnly "com.terraformersmc:modmenu:12.0.0"
 }
 
