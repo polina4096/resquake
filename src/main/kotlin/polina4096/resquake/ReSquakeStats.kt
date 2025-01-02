@@ -1,10 +1,9 @@
 package polina4096.resquake
 
-import net.minecraft.registry.Registries
-import net.minecraft.registry.Registry
 import net.minecraft.stat.StatFormatter
 import net.minecraft.stat.Stats
 import net.minecraft.util.Identifier
+import net.minecraft.util.registry.Registry
 
 object ReSquakeStats {
   val BHOP_ONE_CM = Identifier.of(ReSquakeMod.ID, "bhop_one_cm")!!
@@ -18,7 +17,7 @@ object ReSquakeStats {
   }
 
   private fun registerStat(key: Identifier, id: String, formatter: StatFormatter) {
-    Registry.register(Registries.CUSTOM_STAT, id, key)
+    Registry.register(Registry.CUSTOM_STAT, id, key)
     Stats.CUSTOM.getOrCreateStat(key, formatter)
   }
 }
