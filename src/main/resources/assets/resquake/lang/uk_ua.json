@@ -3,5 +3,8 @@
   "key.resquake.toggle": "Увімкнути/вимкнути re:squake",
   "key.resquake.config": "Меню налаштування re:squake",
   "resquake.enabled": "re:squake включений",
-  "resquake.disabled": "re:squake вимкнено"
+  "resquake.disabled": "re:squake вимкнено",
+  "stat.resquake.trimps": "Тримпів",
+  "stat.resquake.bhop_one_cm": "Подолано банніхопом",
+  "stat.resquake.shark_one_cm": "Подолано шаркінгом"
 }
