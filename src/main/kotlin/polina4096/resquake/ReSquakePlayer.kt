@@ -393,6 +393,8 @@ object ReSquakePlayer {
 
   // Sharking
   private fun PlayerEntity.travelWaterQuake(wishspeed: Double, wishX: Double, wishZ: Double): Boolean {
+    if (!world.isClient) return true
+
     // Collect all relevant movement values
     val speed = this.getSpeed()
 
