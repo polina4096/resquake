@@ -78,7 +78,7 @@ object ReSquakePlayer {
   fun travel(player: PlayerEntity, movementInput: Vec3d): Boolean {
     if (!ReSquakeMod.config.quakeMovementEnabled
       || player.abilities.flying
-      || player.isFallFlying
+      || player.isGliding
       || player.vehicle != null
     )
       return false
@@ -92,7 +92,7 @@ object ReSquakePlayer {
       val zPow = (player.z - preZ).pow(2)
       val distance = (xPow + yPow + zPow).pow(1.0 / 2.0)
 
-      val flying = (player.abilities.flying || player.isFallFlying)
+      val flying = (player.abilities.flying || player.isGliding)
 
       // Apparently stats are stored with 2-digit fixed point precision
       if (player is ServerPlayerEntity && jumping && distance > 0.0) {
@@ -171,7 +171,7 @@ object ReSquakePlayer {
     // Fallback to default minecraft movement
     if (this.isClimbing || this.isInSwimmingPose) return false
 
-    val flying = (this.abilities.flying || this.isFallFlying)
+    val flying = (this.abilities.flying || this.isGliding)
     if (this.isInLava && !flying) return false // Swimming in lava
 
     // Collect all relevant movement values

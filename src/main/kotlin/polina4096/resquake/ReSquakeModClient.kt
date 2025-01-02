@@ -21,7 +21,7 @@ object ReSquakeModClient : ClientModInitializer {
   override fun onInitializeClient() {
     ClientTickEvents.END_CLIENT_TICK.register(ClientTickEvents.EndTick { client: MinecraftClient ->
       if (client.player != null)
-        ReSquakePlayer.jumping = client.player!!.input.jumping
+        ReSquakePlayer.jumping = client.player!!.input.playerInput.jump
 
       if (keyConfig.wasPressed()) {
         client.setScreen(generateConfigScreen(client.currentScreen))

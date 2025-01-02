@@ -21,12 +21,6 @@ public abstract class MixinPlayerEntity extends LivingEntity {
     super(entityType, world);
   }
 
-  @Inject(method = "jump", at = @At("TAIL"))
-  public void jumpInject(CallbackInfo ci) {
-    PlayerEntity player = (PlayerEntity) (Object) this;
-    ReSquakePlayer.INSTANCE.afterJump(player);
-  }
-
   @Inject(method = "travel", at = @At("HEAD"), cancellable = true)
   public void travelInject(Vec3d movementInput, CallbackInfo ci) {
     PlayerEntity player = (PlayerEntity) (Object) this;
