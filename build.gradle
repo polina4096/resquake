@@ -27,9 +27,9 @@ dependencies {
 
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     modImplementation "net.fabricmc:fabric-language-kotlin:${project.fabric_kotlin_version}"
-    modCompileOnly "com.terraformersmc:modmenu:6.3.1"
+    modCompileOnly "com.terraformersmc:modmenu:5.1.0"
 
-    modRuntimeOnly "com.terraformersmc:modmenu:6.3.1"
+    modRuntimeOnly "com.terraformersmc:modmenu:5.1.0"
 }
 
 processResources {
@@ -47,6 +47,12 @@ tasks.withType(JavaCompile).configureEach {
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         jvmTarget = 21
+    }
+}
+
+configurations.configureEach {
+    resolutionStrategy {
+        force("net.fabricmc:fabric-loader:$loader_version")
     }
 }
 
