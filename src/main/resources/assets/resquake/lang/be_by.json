@@ -1,7 +1,11 @@
 {
   "category.resquake": "re:squake",
   "key.resquake.toggle": "Уключыць/выключыць re:squake",
-  "key.resquake.config": "Меню наладкі re:squake",
+  "key.resquake.config": "Перазагрузіць наладкі re:squake",
   "resquake.enabled": "re:squake выключаны",
-  "resquake.disabled": "re:squake уключаны"
+  "resquake.disabled": "re:squake уключаны",
+  "resquake.config.reloaded": "Наладкі re:squake перазагружаныя",
+  "stat.resquake.trimps": "Трымпаў",
+  "stat.resquake.bhop_one_cm": "Пераадолена банніхопам",
+  "stat.resquake.shark_one_cm": "Пераадолена шаркінгам"
 }

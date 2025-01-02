@@ -4,13 +4,14 @@ import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback
+import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.client.MinecraftClient
-import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.option.KeyBinding
 import net.minecraft.client.util.InputUtil
 import net.minecraft.text.Text
 import org.lwjgl.glfw.GLFW
-import kotlin.math.roundToInt
+import polina4096.resquake.ReSquakeMod.ID
+import polina4096.resquake.ReSquakeMod.config
 
 
 object ReSquakeModClient : ClientModInitializer {
@@ -23,7 +24,9 @@ object ReSquakeModClient : ClientModInitializer {
         ReSquakePlayer.jumping = client.player!!.input.jumping
 
       if (keyConfig.wasPressed()) {
-        client.setScreen(generateConfigScreen(client.currentScreen))
+        val configDir = FabricLoader.getInstance().configDir
+        config = ReSquakeConfig.load(configDir.resolve("$ID.json"))
+        client.player?.sendMessage(Text.translatable("resquake.config.reloaded"), true)
       }
 
       while (keyToggle.wasPressed()) {
@@ -36,7 +39,7 @@ object ReSquakeModClient : ClientModInitializer {
     })
 
     val mc = MinecraftClient.getInstance()
-    HudRenderCallback.EVENT.register { ctx: DrawContext, _ ->
+    HudRenderCallback.EVENT.register { stack, _ ->
       val speed = ReSquakePlayer.currentSpeed * 20
       val speedDifference = speed - (ReSquakePlayer.previousSpeed * 20)
       if (!ReSquakeMod.config.speedDeltaIndicatorEnabled || !ReSquakePlayer.jumping || ReSquakePlayer.swimming || speed < ReSquakeMod.config.speedDeltaThreshold)
@@ -55,10 +58,11 @@ object ReSquakeModClient : ClientModInitializer {
         else -> ReSquakeMod.config.speedUnchangedColor
       }
 
-      ctx.drawTextWithShadow(mc.textRenderer, text, (posX - centerOffset).roundToInt(), (posY + 15).roundToInt(), color)
+
+      mc.textRenderer.drawWithShadow(stack, text, posX - centerOffset, posY + 15, color)
       if (ReSquakeMod.config.speedDiffIndicatorEnabled) {
         val differenceText = "%.2f".format(speedDifference)
-        ctx.drawTextWithShadow(mc.textRenderer, differenceText, (posX - centerOffset).roundToInt(), (posY + 25).roundToInt(), color)
+        mc.textRenderer.drawWithShadow(stack, differenceText, posX - centerOffset, posY + 25, color)
       }
     }
   }
